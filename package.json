@@ -1,0 +1,29 @@
+{
+  "name": "mekiki",
+  "version": "1.0.0",
+  "description": "An npm package advisor agent. Ask which library to use, it checks the registry and download numbers, then recommends one",
+  "homepage": "https://github.com/atharvdange618/Mekiki#readme",
+  "bugs": {
+    "url": "https://github.com/atharvdange618/Mekiki/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atharvdange618/Mekiki.git"
+  },
+  "license": "MIT",
+  "author": "Atharv Dange",
+  "type": "module",
+  "scripts": {
+    "start": "tsx --env-file=.env agent.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "neatlogs": "^1.1.26",
+    "openai": "^7.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
