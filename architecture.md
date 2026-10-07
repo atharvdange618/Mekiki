@@ -27,12 +27,16 @@ flowchart LR
 
 Each tool has two halves. The schema in `tools` is what the model reads. The function is plain TypeScript that the loop runs on the model's behalf.
 
-| Tool                     | Source                                                  | Returns                                                                                     |
-| ------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `search_packages(query)` | npm search API, 25 results                              | Top 8 by weekly downloads: name, description, downloads                                     |
-| `get_package_info(name)` | `/<name>/latest` plus an exact-name search, in parallel | Description, version, last publish date, license, downloads, deprecation, or `found: false` |
+| Tool                     | Source                                                  | Returns                                                                                                 |
+| ------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `search_packages(query)` | npm search API, 25 results                              | Top 8 by weekly downloads: name, description, downloads                                                 |
+| `get_package_info(name)` | `/<name>/latest` plus an exact-name search, in parallel | Description, version, last publish date, license, repository, downloads, deprecation, or `found: false` |
 
 Tool results go back as JSON strings and stay in the context for every later turn, so each tool returns only the fields the model needs.
+
+## How it picks
+
+The system prompt is a numbered process. The model first names the packages it knows developers choose for the job, then checks them with `get_package_info` while `search_packages` looks for anything it missed. Its knowledge says what people choose. The tools say whether those packages exist, are maintained, and how widely they're installed. Packages that share a `repository` count as one project.
 
 ## Tracing
 
@@ -52,4 +56,5 @@ WORKFLOW advise
 
 - If npm returns an error status, the tool throws and the whole run crashes. The model never gets a chance to recover.
 - Deprecated packages often drop out of npm search, so their publish date and downloads come back `null`.
+- `get_package_info` confirms a package exists and is maintained, not that it fits the job. If the model names the wrong package from memory, nothing catches it.
 - Search results depend heavily on wording. The tool description asks the model to try several phrasings.

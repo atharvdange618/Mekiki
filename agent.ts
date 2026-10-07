@@ -56,7 +56,8 @@ const tools: ChatCompletionTool[] = [
       name: "get_package_info",
       description:
         "Look up one npm package by exact name. Returns description, latest version, last publish date, license, " +
-        "weekly downloads and whether it is deprecated, or found: false if no such package exists. " +
+        "repository, weekly downloads and whether it is deprecated, or found: false if no such package exists. " +
+        "Packages with the same repository belong to the same project. " +
         "Use it to check packages you suspect exist but search missed, and to verify your top picks before recommending.",
       parameters: {
         type: "object",
@@ -93,6 +94,7 @@ interface NpmLatestManifest {
   description?: string;
   license: string;
   deprecated: string;
+  repository?: string | { url?: string };
 }
 
 type PackageInfo =
@@ -104,6 +106,7 @@ type PackageInfo =
       latestVersion: string;
       lastPublished: string | null;
       license: string | null;
+      repository: string | null;
       weeklyDownloads: number | null;
       deprecated: string | null;
     };
@@ -161,11 +164,25 @@ const getPackageInfo = span(
       latestVersion: latest.version,
       lastPublished: match?.package.date ?? null,
       license: latest.license ?? null,
+      repository: normalizeRepository(latest.repository),
       weeklyDownloads: match?.downloads?.weekly ?? null,
       deprecated: latest.deprecated ?? null,
     };
   },
 );
+
+function normalizeRepository(
+  repo: NpmLatestManifest["repository"],
+): string | null {
+  const raw = typeof repo === "string" ? repo : repo?.url;
+  if (!raw) return null;
+  return raw
+    .replace(/^git\+/, "")
+    .replace(/^github:/, "https://github.com/")
+    .replace(/^git:\/\//, "https://")
+    .replace(/\.git$/, "")
+    .toLowerCase();
+}
 
 async function runTool(name: string, rawArgs: string): Promise<string> {
   const args: unknown = JSON.parse(rawArgs);
@@ -205,11 +222,15 @@ const runAgent = span(
     const messages: ChatCompletionMessageParam[] = [
       {
         role: "system",
-        content:
-          "You help developers pick npm packages. Use tools to get real data before recommending. " +
-          "Search first, then call get_package_info on your top 3 candidates, plus any well-known package search missed. " +
-          "Weigh weekly downloads, last publish date and deprecation. Leave out helper packages that extend another library. " +
-          "Give one clear recommendation and at most two alternatives, each with its downloads and last publish date.",
+        content: [
+          "You help developers pick npm packages. Follow these steps in order.",
+          "1. From your own knowledge, name the 3 to 5 packages developers most often choose for this job.",
+          "2. In your first turn, call get_package_info on each of them and call search_packages to find anything you missed.",
+          "3. If search shows a strong candidate you have not checked, call get_package_info on it.",
+          "4. Recommend one package and at most two alternatives. Each must be a library developers install directly for this job.",
+          "   Skip packages that extend, wrap or ship inside another library. Packages with the same repository are one project: list it once.",
+          "Weigh weekly downloads, last publish date and deprecation. Give downloads and last publish date for each pick.",
+        ].join("\n"),
       },
       { role: "user", content: question },
     ];

@@ -2,6 +2,42 @@
 
 Newest first. Each entry says what we chose, why, and what we turned down.
 
+## 2026-10-07: The model proposes, the tools verify
+
+**Problem.** On "best React form library?", the main pick was right in 5 of 5 runs, but the alternatives were wrong in 10 of 10. They were `rc-field-form`, `@rc-component/form` and `survey-react-ui`. The first two are the same library under an old and a new name, and both ship inside Ant Design, so their downloads come from antd installs, not developers choosing them. `survey-react-ui` got picked because its description says "React form library," word for word. Formik and TanStack Form never appeared.
+
+**Root cause, from the traces.** Downloads measure installs, not choices, so anything bundled inside a popular library looks popular. And the model only checked what search handed it. In trace `ad6ff271963c7520c05d8bf6c328352a`, search returned `@tanstack/react-form-devtools`, direct evidence TanStack Form exists, and the model never looked up `@tanstack/react-form`. The prompt line "plus any well-known package search missed" had no effect.
+
+ 
+**Fix.** Two changes aimed at one metric:
+
+1. The system prompt is now numbered steps. Step 1 has the model name the packages developers usually choose, from its own knowledge, and look them up in its first turn alongside search. The model knows what people choose but its knowledge is stale. The tools are current but can't tell a choice from a dependency. Each covers the other's gap: a made-up or abandoned name comes back as `found: false` or with an old publish date.
+2. `get_package_info` now returns `repository`, normalized so `git+https://...git` and `github:owner/repo` compare equal. Two names with the same repository count as one project. In a monorepo this groups related packages too (`@tanstack/react-form` and its devtools share `github.com/tanstack/form`), which is what we want for alternatives. We changed both together since they target the same failure. If the score improves, a follow-up run without the repository field would show how much each one did.
+
+ 
+**Metric.** Per run, how many of the two alternatives are `formik`, `@tanstack/react-form` or `react-final-form`. Scored 0, 1 or 2. Defined before seeing any results.
+
+ 
+| | Runs | Alternatives score | Main pick right |
+| --- | --- | --- | --- |
+| Before | 5 | 0 of 10 | 5 of 5 |
+| After | 5 | 10 of 10 | 5 of 5 |
+
+ 
+After, the alternatives were Formik plus TanStack Form once, and Formik plus React Final Form four times. The rc packages and `survey-react-ui` never appeared as picks. Trace `f32a5943ac347bdd4e6af422a0dfa485` shows the new behavior: in its first turn the model looked up `formik`, `react-hook-form`, `redux-form` and `@tanstack/react-form` from its own knowledge, alongside one search. It dropped `redux-form` after seeing it was last published in March 2023, so the verify half works too.
+
+ 
+Average run time also fell from 11.7 s to 9.6 s, since the model often reached an answer in two model turns instead of three. We didn't aim for this, and the runs did different amounts of work, so treat it as a side effect, not a measured win.
+
+ 
+**What's still wrong.**
+
+- In 2 of 5 runs the model "remembered" `@tanstack/react-query`, a data fetching library, as a form library. It exists, so `get_package_info` returned `found: true`. Our verification checks that a package exists and is maintained, not that it fits the job. The model didn't recommend it, but nothing stopped it.
+- In trace `bcf477fbb559700244846c9afb665a15` the answer listed `@hookform/resolvers` and `survey-react-ui` as "additional packages," outside the one pick and two alternatives the prompt allows.
+- In trace `bdbbaf8c1fe6b585e118c48660ee173c` the model searched in a separate turn instead of the first one, which cost a fourth model call.
+- In the 4 runs that picked React Final Form (647K weekly downloads), TanStack Form (4.2M, published more recently) lost out. In 2 of those, the model never looked TanStack Form up because it checked `@tanstack/react-query` instead.
+- All 10 runs used one question. The fix may be tuned to it.
+
 ## 2026-10-07: Run tool calls in parallel
 
 The model often asks for several tools in one turn, but the loop ran them one at a time with `await` inside `for...of`. The answer was the same either way, so only the trace timeline showed it: each tool span started the moment the previous one ended. Now the loop runs them with `Promise.all`. Each result comes back paired with its `tool_call_id`, so order can't get mixed up.
