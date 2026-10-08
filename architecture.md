@@ -7,6 +7,7 @@ Mekiki is a command line agent that recommends npm packages. You ask a question,
 | File              | Purpose                                                                  |
 | ----------------- | ------------------------------------------------------------------------ |
 | `agent.ts`        | The whole agent: tool schemas, tool functions, and the loop              |
+| `README.md`       | What Mekiki is, setup, and things to try                                 |
 | `.env`            | `OPENAI_API_KEY`, `OPENAI_MODEL` and `NEATLOGS_API_KEY`, never committed |
 | `architecture.md` | How the agent works                                                      |
 | `decisions.md`    | Why it works that way, and what we rejected                              |
