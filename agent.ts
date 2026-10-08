@@ -105,6 +105,7 @@ type PackageInfo =
       description: string;
       latestVersion: string;
       lastPublished: string | null;
+      monthsSinceLastPublish: number | null;
       license: string | null;
       repository: string | null;
       weeklyDownloads: number | null;
@@ -163,6 +164,7 @@ const getPackageInfo = span(
       description: latest.description ?? "",
       latestVersion: latest.version,
       lastPublished: match?.package.date ?? null,
+      monthsSinceLastPublish: monthsSince(match?.package.date),
       license: latest.license ?? null,
       repository: normalizeRepository(latest.repository),
       weeklyDownloads: match?.downloads?.weekly ?? null,
@@ -170,6 +172,15 @@ const getPackageInfo = span(
     };
   },
 );
+
+const MS_PER_MONTH = 1000 * 60 * 60 * 24 * 30.44;
+
+function monthsSince(isoDate: string | undefined): number | null {
+  if (!isoDate) return null;
+  const then = Date.parse(isoDate);
+  if (Number.isNaN(then)) return null;
+  return Math.floor((Date.now() - then) / MS_PER_MONTH);
+}
 
 function normalizeRepository(
   repo: NpmLatestManifest["repository"],
@@ -229,7 +240,10 @@ const runAgent = span(
           "3. If search shows a strong candidate you have not checked, call get_package_info on it.",
           "4. Recommend one package and at most two alternatives. Each must be a library developers install directly for this job.",
           "   Skip packages that extend, wrap or ship inside another library. Packages with the same repository are one project: list it once.",
-          "Weigh weekly downloads, last publish date and deprecation. Give downloads and last publish date for each pick.",
+          "monthsSinceLastPublish is how long ago the last release was. At 12 or more, the package may be unmaintained:",
+          "   never make it the main pick, and if you list it as an alternative, say how many months it has been.",
+          "   High downloads do not mean a package is maintained. Never call a package actively maintained at 12 or more.",
+          "Give downloads and last publish date for each pick.",
         ].join("\n"),
       },
       { role: "user", content: question },

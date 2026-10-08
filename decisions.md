@@ -2,6 +2,27 @@
 
 Newest first. Each entry says what we chose, why, and what we turned down.
 
+## 2026-10-08: Compute package age in code
+ 
+**Problem.** The holdout set scored 5 of 9 on main picks and walked into a trap 2 of 9 times. Every miss involved a package last published in 2023. In traces `55ecba05902f932bf329ac6d8ffd07d9` and `1b71c2d78fead71c8246242d2a2f624f` the model called `node-fetch` "actively maintained" with "Last Published: July 25, 2023" printed right above.
+ 
+**Root cause.** The model doesn't know today's date. gpt-4o-mini's training data ends around late 2023, so a 2023 date looks recent to it. The prompt said "weigh last publish date," but that means comparing to today, which the model can't do.
+ 
+**Fix.** `get_package_info` now returns `monthsSinceLastPublish`, computed in TypeScript. The prompt replaces "weigh" with a rule: at 12 months or more, never the main pick, and any alternative must state its age. It also says high downloads don't mean a package is maintained, since `node-fetch` has 249M weekly downloads.
+ 
+Rejected: putting today's date in the system prompt. The model would still have to subtract dates, and small models do arithmetic badly. Code is exact. We kept this to one mechanism so the result is easy to attribute.
+ 
+**Tradeoff.** Some packages are finished and rarely need releases. A 12 month rule will flag them. For "which library should I pick" questions, an old release is a fair warning, and the rule only blocks the main pick, so such packages can still show up as alternatives with their age stated.
+ 
+**Result.** Mixed. On the holdout set, main picks went from 5 of 9 to 9 of 9, but alternatives fell from 14 of 18 to 8 of 18, and traps went from 2 of 9 to 3 of 9. Full scores and which predictions held are in `evals.md`.
+ 
+The traces show three ways the alternatives broke:
+ 
+1. The hard line at 12 months threw out `luxon` at 13 months in every H1 run, instead of keeping it with a warning.
+2. With freshness as the loudest signal, fresh and popular packages took slots whether or not they fit: `moment` (released last month, but legacy by its own team's account) in H1, `gaxios` (a Google APIs client) in H2.
+3. The model's own candidate list is stale. Once its 2023-era picks were ruled out, it had too few good ones left and filled slots from search, with packages like `constate` and `unstated-next`. It reads "at most two alternatives" as "exactly two."
+So the fix traded one failure for others. We keep the computed age, since it's right that the model can't do date math, and change how the prompt uses it.
+
 ## 2026-10-07: The model proposes, the tools verify
 
 **Problem.** On "best React form library?", the main pick was right in 5 of 5 runs, but the alternatives were wrong in 10 of 10. They were `rc-field-form`, `@rc-component/form` and `survey-react-ui`. The first two are the same library under an old and a new name, and both ship inside Ant Design, so their downloads come from antd installs, not developers choosing them. `survey-react-ui` got picked because its description says "React form library," word for word. Formik and TanStack Form never appeared.

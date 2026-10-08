@@ -10,6 +10,7 @@ Mekiki is a command line agent that recommends npm packages. You ask a question,
 | `.env`            | `OPENAI_API_KEY`, `OPENAI_MODEL` and `NEATLOGS_API_KEY`, never committed |
 | `architecture.md` | How the agent works                                                      |
 | `decisions.md`    | Why it works that way, and what we rejected                              |
+| `evals.md`        | Test questions, their answer keys, and scored results                    |
 
 ## The loop
 
@@ -27,10 +28,10 @@ flowchart LR
 
 Each tool has two halves. The schema in `tools` is what the model reads. The function is plain TypeScript that the loop runs on the model's behalf.
 
-| Tool                     | Source                                                  | Returns                                                                                                 |
-| ------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `search_packages(query)` | npm search API, 25 results                              | Top 8 by weekly downloads: name, description, downloads                                                 |
-| `get_package_info(name)` | `/<name>/latest` plus an exact-name search, in parallel | Description, version, last publish date, license, repository, downloads, deprecation, or `found: false` |
+| Tool                     | Source                                                  | Returns                                                                                                                            |
+| ------------------------ | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `search_packages(query)` | npm search API, 25 results                              | Top 8 by weekly downloads: name, description, downloads                                                                            |
+| `get_package_info(name)` | `/<name>/latest` plus an exact-name search, in parallel | Description, version, last publish date, months since that publish, license, repository, downloads, deprecation, or `found: false` |
 
 Tool results go back as JSON strings and stay in the context for every later turn, so each tool returns only the fields the model needs.
 
