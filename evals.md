@@ -123,3 +123,67 @@ Main picks became perfect. Alternatives got much worse, and traps moved from `re
 | H1: no change                                       | No. Trap went from 0 of 3 to 3 of 3        |
 | `luxon` appears as an alternative with a warning    | No. It was dropped in all 3 runs           |
 | Tuning set unchanged                                | Not measured yet                           |
+
+## Verified numbers fix
+
+Run with `pnpm evals`. Each batch is one neatlogs session, and the runner prints the table below with trace IDs filled in. Main, Alts and Trap stay for a human to score. "Mentions trap" in Notes means the name appears anywhere in the answer, not that it was recommended.
+
+**Problem.** The model copies numbers between packages. Trace `93993d17d256c10674ab3a6a5da9cbf6` gave `fecha` "13 months ago", which is `luxon`'s age. The tool returned 53.
+
+**Metric.** Answers with a download count, publish date or month count that disagrees with the tool data for that package. Defined before the fix.
+
+### Before, session `eval-9ffc58a-dirty-1791712993362`
+
+| Question | Run | Main | Alts | Trap | Trace | Notes |
+| -------- | --- | ---- | ---- | ---- | ----- | ----- |
+| T | 1 | | | | `14a281e8b0cd575db6bfa6256b41c8da` |  |
+| T | 2 | | | | `607545d0caa51bd136cff5388a301eec` |  |
+| T | 3 | | | | `a8f3c4f90a11d688ed36ba9fd6eb4063` |  |
+| H1 | 1 | | | | `e3abbd163b24ea309a25a285f9d2d8b1` | Mentions trap: `moment` |
+| H1 | 2 | | | | `93bb850ed9808b7c07be569b3796a3d3` | Mentions trap: `moment` |
+| H1 | 3 | | | | `834c173c19faa6fcc37a2eb3a3576cf3` | Mentions trap: `moment`. Says `luxon` is 12 months, tool says 13 |
+| H2 | 1 | | | | `503b859562c9f3ccc1b799e69f961a79` | Says `node-fetch` was published "3 months ago" and is "actively maintained", next to its July 2023 date |
+| H2 | 2 | | | | `05099ff864a47ab32e1f52236f2a684b` | Mentions trap: `request` |
+| H2 | 3 | | | | `4b88f0d07e6dd586119152484d5cb845` |  |
+| H3 | 1 | | | | `b264907ba22797eca513676a1e60f432` |  |
+| H3 | 2 | | | | `dd9462a69cb4b7b671776a608b8ca6cc` | Mentions trap: `recoil` |
+| H3 | 3 | | | | `0962c5726e80f341151c2ee5c91a8765` |  |
+
+At least 2 of 12 answers state a wrong number. That count is a floor: it only covers numbers checkable from the answer text and the earlier `fecha` trace.
+
+### Predictions for the fix
+
+Written before running it. The fix: the model stops writing numbers, and the code appends a table of tool data for every checked package the answer names.
+
+- Wrong numbers in the appended table: 0 of 12, since code copies them.
+- Wrong numbers in the model's own text: drops, but not to 0. A small model may still write some numbers against the prompt.
+- Main, Alts and Trap: no change. The rules for picking stay the same, only who writes the numbers moves.
+- Risk: a pick written under a name other than its npm name (like "React Hook Form") gets no table row.
+
+### After, session `eval-9ffc58a-dirty-1791713388639`
+
+Notes below come from the fixed matcher. The first version counted "request" in "HTTP request library" as the package, which put false trap notes on every H2 run and a `request` row in one appended table.
+
+| Question | Run | Main | Alts | Trap | Trace | Notes |
+| -------- | --- | ---- | ---- | ---- | ----- | ----- |
+| T | 1 | | | | `0a35e35ad0c55fb40de805aec7870c35` |  |
+| T | 2 | | | | `7f5e47e8635c7782b57fef52afb622f3` |  |
+| T | 3 | | | | `96df3dadcbe80d13799e2049300c2504` |  |
+| H1 | 1 | | | | `9bb280ecc60a11546da6b272c6218edb` | Mentions trap: `moment`. Wrote `luxon` 13 months and `xdate` 26 months itself |
+| H1 | 2 | | | | `528aae459ab3f430b9d452e38df06b5d` | Mentions trap: `moment`. Wrote its own table with publish dates |
+| H1 | 3 | | | | `f5cc99072ae81883dd900c0556570b42` | Mentions trap: `moment` |
+| H2 | 1 | | | | `38661850411203d8f66edb1e9936245c` |  |
+| H2 | 2 | | | | `254d3343006c7410332b8c2c3a859013` |  |
+| H2 | 3 | | | | `0f19c9fcfdee96016207832146a6ddb2` | Wrote its own table with publish dates |
+| H3 | 1 | | | | `828fd19c506c4fccbf8f14da1d5c2de5` |  |
+| H3 | 2 | | | | `d78c5c8bfdda1158d22afdf01e78b263` |  |
+| H3 | 3 | | | | `cc5ab175d86b8f038f419f36f12ff74c` | Crashed: npm search failed with status 429 |
+
+| Prediction | Held? |
+| --- | --- |
+| Wrong numbers in the appended table: 0 | Yes. All 11 answers got a table, copied from tool data |
+| Wrong numbers in the model's own text drop, not to 0 | Yes. 3 of 11 answers still wrote numbers. None I could check were wrong, against at least 2 of 12 before |
+| Main, Alts and Trap unchanged | Not scored yet. Trap mentions: `moment` 3 of 3 in both batches, `recoil` 1 of 3 before and 0 of 3 after |
+| A pick under a non-npm name gets no table row | Not checked |
+
+Both batches carry the tag `commit:9ffc58a-dirty`, because neither change was committed. The session IDs tell them apart, but the commit tag can't. Commit a prompt change before running its "after" batch.

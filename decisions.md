@@ -2,6 +2,16 @@
 
 Newest first. Each entry says what we chose, why, and what we turned down.
 
+## 2026-10-11: Code writes the numbers, not the model
+
+**Problem.** The model copies numbers between packages. Trace `93993d17d256c10674ab3a6a5da9cbf6` gave `fecha` "13 months ago", `luxon`'s age, when the tool said 53. In the baseline batch, `node-fetch` was "3 months ago" next to its July 2023 date. Computing the age in code (2026-10-08) didn't help, because the model still had to copy it.
+
+**Fix.** The prompt tells the model to write no download counts, dates or month counts. `runAgent` keeps every package `get_package_info` found, and `appendFacts` adds a table of their tool data for each one the answer names. A name counts only when formatted as `**name**`, `` `name` `` or `[name]`, since `request` and `got` are also English words.
+
+Rejected: a pre-formatted age string per package in the tool result. The model would still copy it, just with less room to get it wrong. Code doing the copying removes the step.
+
+**Result.** All 11 answers that finished got a correct table. 3 of 11 still wrote some numbers themselves, none wrong that we could check. Main, Alts and Trap aren't scored yet. Details in `evals.md`.
+
 ## 2026-10-08: Compute package age in code
  
 **Problem.** The holdout set scored 5 of 9 on main picks and walked into a trap 2 of 9 times. Every miss involved a package last published in 2023. In traces `55ecba05902f932bf329ac6d8ffd07d9` and `1b71c2d78fead71c8246242d2a2f624f` the model called `node-fetch` "actively maintained" with "Last Published: July 25, 2023" printed right above.

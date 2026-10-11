@@ -7,6 +7,8 @@ Mekiki is a command line agent that recommends npm packages. You ask a question,
 | File              | Purpose                                                                  |
 | ----------------- | ------------------------------------------------------------------------ |
 | `agent.ts`        | The whole agent: tool schemas, tool functions, and the loop              |
+| `report.ts`       | Pure text helpers: the registry data table and the eval results table    |
+| `evals.ts`        | Runs the eval questions 3 times each as one neatlogs session (`pnpm evals`) |
 | `README.md`       | What Mekiki is, setup, and things to try                                 |
 | `.env`            | `OPENAI_API_KEY`, `OPENAI_MODEL` and `NEATLOGS_API_KEY`, never committed |
 | `architecture.md` | How the agent works                                                      |
@@ -58,5 +60,6 @@ WORKFLOW advise
 
 - If npm returns an error status, the tool throws and the whole run crashes. The model never gets a chance to recover.
 - Deprecated packages often drop out of npm search, so their publish date and downloads come back `null`.
+- The registry data table only lists packages the answer formats as `**name**`, `` `name` `` or `[name]`. A pick written as "React Hook Form" gets no row.
 - `get_package_info` confirms a package exists and is maintained, not that it fits the job. If the model names the wrong package from memory, nothing catches it.
 - Search results depend heavily on wording. The tool description asks the model to try several phrasings.
