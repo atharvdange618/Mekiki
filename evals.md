@@ -236,3 +236,72 @@ Same prompt, much worse scores. `survey-react-ui` went from 0 of 3 to 2 of 3, Al
 `moment` is the one steady result: an alternative in all 3 H1 runs, in every batch since the freshness fix.
 
 The retry logged 11 retries across 5 runs, all recovered. Without it, those 5 runs would have crashed. The one crash left was a 503, which `npmFetch` didn't retry at the time. It now retries 502, 503 and 504 too.
+
+## 10-run baseline at `3a62ea0`, session `eval-d68d642-dirty-1791736407690`
+
+The first batch at 10 runs per question, and the first after `get_package_info` moved off npm search to the package document and downloads API. The prompt is the same as the verified-numbers "after" batch. Future prompt changes compare against this table.
+
+The tag says `d68d642-dirty` because the batch started 38 seconds before commit `3a62ea0` landed. The uncommitted code was exactly what `3a62ea0` contains, so the batch ran that commit's code.
+
+No run crashed and no npm retries were logged. `request` now gets real registry data (79 months, deprecated) where it used to show `unknown`.
+
+Scoring rules, same as the `1c0f5df` rerun: an answer that names no main pick scores No. A trap counts when the answer recommends it in any list, not only under "Alternatives". When an answer has two alternatives lists, the closing one counts.
+
+| Question | Run | Main | Alts | Trap | Trace | Notes |
+| -------- | --- | ---- | ---- | ---- | ----- | ----- |
+| T | 1 | Yes (`react-hook-form`) | 0 (`survey-react-ui`, `@jcoreio/zod-forms`) | Yes (`survey-react-ui`) | `a7a15ddf357386cb5d12939fdcc3a369` | `formik` and `react-final-form` in its top 3, not under alternatives |
+| T | 2 | Yes (`react-hook-form`) | 2 (`formik`, `@tanstack/react-form`) | No | `3f2027eaa302cca583e29c3f19450673` | `survey-react-ui` under "more specialized choices", outside the picks |
+| T | 3 | Yes (`react-hook-form`) | 0 (`survey-react-ui`) | Yes (`survey-react-ui`) | `438c0f8ad2e86d63a2bcca67d3f6a347` | `formik` in its top 2, not under alternatives |
+| T | 4 | Yes (`react-hook-form`) | 2 (`formik`, `react-final-form`) | No | `e32bb301e52bd68d2cc6d05571460b71` |  |
+| T | 5 | Yes (`react-hook-form`) | 2 (`formik`, `@tanstack/react-form`) | No | `881959d46e18824e678a93032c9fc44a` | Warned off `redux-form` |
+| T | 6 | Yes (`react-hook-form`) | 1 (`formik`; `final-form` scores nothing) | No | `b014c08408f64084c9e450e2dff3523d` |  |
+| T | 7 | Yes (`react-hook-form`) | 2 (`formik`, `@tanstack/react-form`) | No | `607a36d252fe7046a52be32fae8490b2` |  |
+| T | 8 | Yes (`react-hook-form`) | 2 (`formik`, `react-final-form`) | No | `c5ba48cb93d8c5695ba7741b7155b172` |  |
+| T | 9 | No (none named) | 1 (`@tanstack/react-form`) | Yes (`survey-react-ui`) | `7d6dde44860f63d96d5b072cd7cc6a79` | "Top recommended" listed `react-hook-form` and `formik` with no single pick |
+| T | 10 | Yes (`react-hook-form`) | 1 (`formik`; `final-form` scores nothing) | No | `bb078d981c928aba6db8a1945c92285b` |  |
+| H1 | 1 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `d1f4b967f5ab081be1cc378bc5ffbba3` | Never mentions `moment`. `luxon` with its age warning |
+| H1 | 2 | Yes (`date-fns`) | 2 (`luxon`, `dayjs`) | No | `4efc32e4bf50327cdffeb65cc75e374f` | Called `moment` "a legacy project" in its overview |
+| H1 | 3 | No (none named) | 2 (`dayjs`, `luxon`) | Yes (`moment`) | `8daac89adf0bca21433ad623659197f3` | Recommended `date-fns` and `moment` side by side |
+| H1 | 4 | Yes (`date-fns`) | 1 (`dayjs`; `@internationalized/date` scores nothing) | No | `159b73e9f836261fc12ac659747c4e9a` | Called `moment` legacy in its overview |
+| H1 | 5 | Yes (`date-fns`) | 1 (`dayjs`; `@internationalized/date` scores nothing) | No | `d3448316ecef457ba0640b3f2a9544cc` | Said the Moment team recommends alternatives for new projects |
+| H1 | 6 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `f2cb10754bff250537cb991db16fd19a` |  |
+| H1 | 7 | Yes (`date-fns`) | 1 (`dayjs`; `@internationalized/date` scores nothing) | No | `2062834fb3a0288af9c006d4ff2b2b6a` | Never mentions `moment`. Warned off `luxon` |
+| H1 | 8 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `45344b0ab1c803156b389f3f6d35d16f` | Wrote publish dates itself |
+| H1 | 9 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `9ae94e2fb40fc6e235bd5e36a2345447` | Said `moment` hasn't released "in over a year". The table says 0 months |
+| H1 | 10 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `c395c2d128a957e56ccc470f02bd608d` | `luxon` under "Other Notable Mentions" |
+| H2 | 1 | Yes (`axios`) | 2 (`undici`, `superagent`) | No | `97dba45b0f74eb773dcd334adc0d17dd` | Listed `request` as deprecated |
+| H2 | 2 | Yes (`axios`) | 2 (`got`, `undici`) | No | `d03064ece29a996568f26ab4e9d5e2c7` | Listed `request` as deprecated |
+| H2 | 3 | Yes (`axios`) | 2 (`got`, `superagent`) | No | `982281137c5c1a7162f6610db13c0d5f` |  |
+| H2 | 4 | No (none named) | 1 (`got`; `node-fetch` scores nothing) | No | `2490c86c4f4f09e84578d25d798070e7` | Recommended `axios` and `superagent` with no single pick |
+| H2 | 5 | Yes (`axios`) | 2 (`got`, `undici`) | No | `474774bd647aaf1b653d248cf48d61eb` | Two alternatives lists: `superagent` and `node-fetch` under the heading, `got` and `undici` in the closing one. Said `node-fetch` "has been updated recently". It's 38 months |
+| H2 | 6 | Yes (`axios`) | 1 (`superagent`; `node-fetch` scores nothing) | No | `6b15442cff1de94c3b9e895f46bbdd04` | Listed `request` as deprecated |
+| H2 | 7 | Yes (`axios`) | 1 (`superagent`; `gaxios` scores nothing) | No | `9941f5325fd69251ebb9f45acc6ff6f0` |  |
+| H2 | 8 | Yes (`axios`) | 2 (`undici`, `superagent`) | No | `6936530eb021d6c2b8d30ac3746d2ef9` |  |
+| H2 | 9 | Yes (`axios`) | 1 (`got`; `gaxios` scores nothing) | No | `6fcaa3c897413cbcdb68bc47190770aa` | Listed `request` as deprecated |
+| H2 | 10 | Yes (`axios`) | 1 (`got`; `gaxios` scores nothing) | No | `87df00ac4a283d810418259363f36e5b` |  |
+| H3 | 1 | No (none named) | 0 (`redux`, `unstated-next`) | No | `7b7c91182d1a51ae4f12743236656ea8` | Top list led with `mobx`, then `zustand`, `constate` |
+| H3 | 2 | Yes (`zustand`) | 1 (`mobx`) | Yes (`recoil`) | `9568c3f33d438bc1ce2a04cc308e3987` | Listed `recoil` as an alternative while warning it's 43 months old |
+| H3 | 3 | Yes (`zustand`) | 2 (`mobx`, `@reduxjs/toolkit`) | No | `fe452d071e42b28f50998161c54a3f17` |  |
+| H3 | 4 | No (none named) | 1 (`@reduxjs/toolkit`) | No | `e10e642b4add695471c4b7b401d9ea75` | Top list led with `redux` |
+| H3 | 5 | No (none named) | 0 (`redux`) | Yes (`recoil`) | `f31dda39dcf0c005414ad4ddb299fa5e` | Called `recoil` "a good choice" in its top list |
+| H3 | 6 | Yes (`zustand`) | 1 (`mobx`; `constate` scores nothing) | No | `66125d35b6dd614855699d0bdee8607a` |  |
+| H3 | 7 | Yes (`zustand`) | 1 (`mobx`; `constate` scores nothing) | No | `26f77562bf47c1cc1869c3037ae00fbb` |  |
+| H3 | 8 | Yes (`zustand`) | 1 (`mobx`; `constate` scores nothing) | No | `3a5d1a0475fd3d9135e214f444a11e09` | Warned off `redux` and `recoil` |
+| H3 | 9 | No (`redux`) | 2 (`zustand`, `mobx`) | No | `165fd7e6f775d839c50de648c56181ee` | Said `unstated-next` is "over 7 months" old. The table says 88 |
+| H3 | 10 | Yes (`zustand`) | 0 (`constate`, `unstated-next`) | No | `55142c8d2f7e21b684eaabfda9271c05` | `react-redux` in its top 2 |
+
+|             | Main         | Alts         | Trap        |
+| ----------- | ------------ | ------------ | ----------- |
+| T, forms    | 9 of 10      | 13 of 20     | 3 of 10     |
+| H1, dates   | 9 of 10      | 13 of 20     | 5 of 10     |
+| H2, HTTP    | 9 of 10      | 15 of 20     | 0 of 10     |
+| H3, state   | 6 of 10      | 9 of 20      | 2 of 10     |
+| **Holdout** | **24 of 30** | **37 of 60** | **7 of 30** |
+
+Holdout Alts come to 62%, between the two 3-run batches of this prompt (75% and 44%). Tuning traps come to 3 of 10, between their 0 of 3 and 2 of 3. Both fit the reading that the 3-run batches were swinging around this level.
+
+Most Main misses come from answers that list packages without naming one pick: 6 of 40 here (T 9, H1 3, H2 4, H3 1, 4 and 5). Only H3 run 9 named a wrong main pick, plain `redux`. The prompt asks for one main pick, so these are format misses as much as choice misses.
+
+`moment` is no longer recommended every time: 5 of 10 H1 runs, down from all 3 runs in every earlier batch since the freshness fix. Two runs never mention it, and three call it legacy or say its team points elsewhere. The registry data for `moment` looks the same as before, so this is the model's own knowledge showing up some of the time, not something the tools taught it.
+
+The model still writes some wrong numbers in its own text (H1 9, H2 5, H3 9). The registry table under each answer is right in all 40.
