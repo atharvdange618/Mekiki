@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 import OpenAI from "openai";
 import { init, shutdown, span, wrapOpenAI } from "neatlogs";
 import { appendFacts, type PackageFacts } from "./report.js";
+import { npmFetch } from "./npm.js";
 import {
   ChatCompletionMessageParam,
   ChatCompletionTool,
@@ -121,7 +122,7 @@ const searchPackages = span(
   async (query: string): Promise<SearchResult[]> => {
     const url = `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(query)}&size=25`;
 
-    const res = await fetch(url);
+    const res = await npmFetch(url);
     if (!res.ok) throw new Error(`npm search failed with status ${res.status}`);
 
     const data = (await res.json()) as NpmSearchResponse;
@@ -137,13 +138,13 @@ const searchPackages = span(
   },
 );
 
-const getPackageInfo = span(
+export const getPackageInfo = span(
   { kind: "TOOL", toolName: "get_package_info" },
   async (name: string): Promise<PackageInfo> => {
     const encoded = encodeURIComponent(name).replace("%40", "@");
     const [latestRes, searchRes] = await Promise.all([
-      fetch(`https://registry.npmjs.org/${encoded}/latest`),
-      fetch(
+      npmFetch(`https://registry.npmjs.org/${encoded}/latest`),
+      npmFetch(
         `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(name)}&size=5`,
       ),
     ]);
@@ -154,11 +155,13 @@ const getPackageInfo = span(
         `npm lookup for ${name} failed with status ${latestRes.status}`,
       );
 
-    const latest = (await latestRes.json()) as NpmLatestManifest;
+    if (!searchRes.ok)
+      throw new Error(
+        `npm search for ${name} failed with status ${searchRes.status}`,
+      );
 
-    const search = searchRes.ok
-      ? ((await searchRes.json()) as NpmSearchResponse)
-      : { objects: [] };
+    const latest = (await latestRes.json()) as NpmLatestManifest;
+    const search = (await searchRes.json()) as NpmSearchResponse;
 
     const match = search.objects.find((o) => o.package.name === name);
 
