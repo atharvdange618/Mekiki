@@ -26,14 +26,14 @@ const cases = [
   },
 ];
 
-const RUNS = 3;
+const RUNS = 10;
 
 // One neatlogs session per batch, so every run in it groups together.
 const sessionId = `eval-${commit}-${Date.now()}`;
 const rows: EvalRow[] = [];
 
 try {
-  // ponytail: runs one at a time (~2 min for 12). Run in parallel if batches grow.
+  // ponytail: runs one at a time (~7 min for 40). Parallel would be faster but sets off more npm 429s.
   for (const c of cases) {
     for (let run = 1; run <= RUNS; run++) {
       let traceId = "";

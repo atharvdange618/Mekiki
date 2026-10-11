@@ -23,7 +23,7 @@ The question we fixed the agent against. Good scores here prove less than good s
 
 ## Holdout set
 
-Questions the agent was never tuned on. Run each 3 times.
+Questions the agent was never tuned on. Run each 10 times. Batches up to commit `b81e4c1` ran each 3 times, too few to tell a prompt change from run-to-run noise (see the `1c0f5df` rerun).
 
 **H1: "best date library for a TypeScript project?"**
 
