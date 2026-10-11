@@ -1,0 +1,561 @@
+help me score Main, Alts and Trap for the 12 after rows in evals.md, pull the answers from the scratchpad evals-after.md
+
+---
+
+go, score the 12 before rows in evals.md from evals-before.md the same way, then update the prediction row. also can we do something about this npm crash thing?
+
+---
+
+yes, make getPackageInfo throw when the search call fails instead of returning null downloads, and add a test for it
+
+---
+
+run pnpm evals and tell me if H3 run 3 gets through without the 429 crash
+
+---
+
+yes, add the retry logging to npmFetch with a test, then commit the three groups you proposed
+
+---
+
+I ran all three commits, check git log and git status and confirm everything landed cleanly
+
+---
+
+<pasted_content id="81d9">
+athar@atharvdange UCRT64 ~/Documents/Github/Mekiki (main)
+$ pnpm evals
+$ tsx --env-file=.env evals.ts
+[step 1] get_package_info({"name": "formik"})
+[step 1] get_package_info({"name": "react-hook-form"})
+[step 1] get_package_info({"name": "@tanstack/react-form"})
+[step 2] search_packages({"query":"react form library"})
+[step 3] get_package_info({"name": "survey-react-ui"})
+[step 3] get_package_info({"name": "@hookform/resolvers"})
+[step 3] get_package_info({"name": "@jiin.seok/formkit-react"})
+
+### T run 1, trace 0235630ee945eb0b81b7ecd58fa7f3ce
+
+Here are some of the top suggestions for React form libraries:
+
+1. **react-hook-form**  
+   Description: Performant, flexible, and extensible forms library for React Hooks.  
+   [Repository](https://github.com/react-hook-form/react-hook-form)
+
+2. **formik**  
+   Description: Build forms in React, without the tears.  
+   [Repository](https://github.com/jaredpalmer/formik)  
+   *(Note: Last published 11 months ago; it may be unmaintained.)*
+
+3. **@tanstack/react-form**  
+   Description: Powerful, type-safe forms for React.  
+   [Repository](https://github.com/tanstack/form)
+
+### Alternatives:
+- **survey-react-ui**  
+  Description: React form library for rendering dynamic, JSON-based forms and surveys.  
+  [Repository](https://github.com/surveyjs/surveyjs)
+
+- **@jiin.seok/formkit-react**  
+  Description: A powerful React form library with Compound Component Pattern, built-in validation, and TypeScript support.  
+  [Repository](https://github.com/jiinseok/formkit-react)
+
+Each of these libraries has their own strengths and features, so you may want to consider your specific needs when making a choice.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| formik | 4,684,494 | 2025-11-10 | 11 |
+| @tanstack/react-form | 3,760,814 | 2026-08-11 | 2 |
+| react-hook-form | 54,508,503 | 2026-10-11 | 0 |
+| survey-react-ui | 225,150 | 2026-10-06 | 0 |
+| @jiin.seok/formkit-react | 597 | 2026-10-01 | 0 |
+[step 1] get_package_info({"name": "formik"})
+[step 1] get_package_info({"name": "react-hook-form"})
+[step 1] get_package_info({"name": "react-final-form"})
+[step 1] get_package_info({"name": "@tanstack/react-form"})
+[step 1] search_packages({"query": "react form library"})
+[step 2] get_package_info({"name": "@hookform/resolvers"})
+[step 2] get_package_info({"name": "survey-react-ui"})
+[step 2] get_package_info({"name": "@react-form-builder/designer"})
+[step 2] get_package_info({"name": "@jcoreio/zod-forms"})
+[step 2] get_package_info({"name": "@jiin.seok/formkit-react"})
+
+### T run 2, trace 9c2632f13004732d4e447fc4d1292f5e
+
+For working with forms in React, here are the top libraries that developers often choose:
+
+1. **react-hook-form**: A performant, flexible, and extensible forms library for React Hooks. It is actively maintained and widely popular among developers.
+   - [Repository](https://github.com/react-hook-form/react-hook-form)
+
+2. **formik**: A well-known library for building forms in React without the tears. It's particularly popular among those who appreciate its straightforward APIs and validation handling.
+   - [Repository](https://github.com/jaredpalmer/formik)
+
+3. **react-final-form**: This library offers high performance and subscription-based form state management for React. It can be a solid choice for those looking for a lightweight solution.
+   - [Repository](https://github.com/final-form/react-final-form)
+
+4. **@tanstack/react-form**: A powerful and type-safe form library that aims to provide an excellent developer experience and flexibility in managingforms in React.
+   - [Repository](https://github.com/tanstack/form)
+
+### Recommendation
+I recommend **react-hook-form** as the primary choice due to its performance and modern approach to form handling with React Hooks.
+
+### Alternatives
+- **formik**: A solid alternative with a large user base and plenty of resources available.
+- **react-final-form**: While slightly less popular, it's still a dependable choice for managing form state efficiently.
+
+Each of these libraries provides a unique set of features and can cater to different project requirements.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| formik | 4,684,494 | 2025-11-10 | 11 |
+| @tanstack/react-form | 3,760,814 | 2026-08-11 | 2 |
+| react-final-form | 532,288 | 2026-05-05 | 5 |
+| react-hook-form | 54,508,503 | 2026-10-11 | 0 |
+[step 1] get_package_info({"name": "formik"})
+[step 1] get_package_info({"name": "react-hook-form"})
+[step 1] get_package_info({"name": "@tanstack/react-query"})
+[step 1] get_package_info({"name": "react-final-form"})
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=%40tanstack%2Freact-query&size=5, retry 2 in 1000ms
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=react-final-form&size=5, retry 2 in 1000ms
+[step 2] search_packages({"query":"react form library"})
+[step 3] get_package_info({"name": "survey-react-ui"})
+[step 3] get_package_info({"name": "@jcoreio/zod-forms"})
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=%40jcoreio%2Fzod-forms&size=5, retry 2 in 1000ms
+
+### T run 3, trace c77435f05effe17c7681eddec5ecebdb
+
+Here are the top packages for handling forms in React:
+
+1. **react-hook-form**  
+   - Description: Performant, flexible and extensible forms library for React Hooks  
+   - License: MIT  
+   - Repository: [GitHub](https://github.com/react-hook-form/react-hook-form)  
+
+2. **formik**  
+   - Description: Build forms in React, without the tears  
+   - License: Apache-2.0  
+   - Repository: [GitHub](https://github.com/jaredpalmer/formik)  
+   - Note: Last published over 11 months ago, so it may not be actively maintained.
+
+3. **react-final-form**  
+   - Description: 🏁 High performance subscription-based form state management for React  
+   - License: MIT  
+   - Repository: [GitHub](https://github.com/final-form/react-final-form)  
+
+**Alternatives:**  
+- **survey-react-ui**  
+   - Description: React form library for rendering dynamic, JSON-based forms and surveys. Collect user responses and store them in your own database. 
+   - License: MIT  
+   - Repository: [GitHub](https://github.com/surveyjs/surveyjs)  
+
+- **@jcoreio/zod-forms**  
+   - Description: React form library based upon zod schemas  
+   - License: MIT  
+   - Repository: [GitHub](https://github.com/jcoreio/zod-forms)  
+   - Note: Last published over 8 months ago, so it may not be actively maintained.
+
+Based on current usage and maintenance status, I recommend **react-hook-form** as the primary choice for a React form library.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| formik | 4,684,494 | 2025-11-10 | 11 |
+| react-hook-form | 54,508,503 | 2026-10-11 | 0 |
+| react-final-form | 532,288 | 2026-05-05 | 5 |
+| survey-react-ui | 225,150 | 2026-10-06 | 0 |
+| @jcoreio/zod-forms | 617 | 2026-01-11 | 8 |
+[step 1] get_package_info({"name": "date-fns"})
+[step 1] get_package_info({"name": "moment"})
+[step 1] get_package_info({"name": "dayjs"})
+[step 1] get_package_info({"name": "luxon"})
+[step 1] search_packages({"query": "date library TypeScript"})
+
+### H1 run 1, trace dd1d4b92a9b7d8a3d04471497da90a08
+
+Here are some popular date libraries that developers commonly choose for TypeScript projects:
+
+1. **date-fns**: A modern JavaScript date utility library that is modular and has a functional programming style. It is well-suited for TypeScript projects, providing type definitions.
+
+2. **moment**: A widely used library for parsing, validating, manipulating, and displaying dates. While it works well with TypeScript, it's worth noting that Moment.js has been considered for deprecation in favor of more modern alternatives.
+
+3. **dayjs**: A lightweight alternative to Moment.js (only 2KB) with a similar API. It's immutable, has good TypeScript support, and is quite performant.
+
+4. **luxon**: Created by one of the Moment.js authors, Luxon is an immutable date-time library with excellent support for time zones and internationalization. However, it may not be as actively maintained as the others since it’s been over a year since its last update.
+
+Based on this information, I recommend **date-fns** as the best choice due to its modular design, active maintenance, and strong TypeScript support. 
+
+As alternatives, consider **dayjs** for a lightweight option, and **moment** if you need comprehensive features (but be aware of possible future deprecation).
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| luxon | 42,059,281 | 2025-09-05 | 13 |
+| dayjs | 76,189,971 | 2026-08-17 | 1 |
+| date-fns | 98,165,520 | 2026-05-29 | 4 |
+| moment | 38,533,299 | 2026-09-15 | 0 |
+[step 1] get_package_info({"name": "date-fns"})
+[step 1] get_package_info({"name": "dayjs"})
+[step 1] get_package_info({"name": "moment"})
+[step 1] get_package_info({"name": "luxon"})
+[step 1] search_packages({"query": "date library"})
+[step 2] get_package_info({"name": "xdate"})
+[step 2] get_package_info({"name": "datejs"})
+
+### H1 run 2, trace 72696b416445321be5b47be74fb2359c
+
+For a TypeScript project, I recommend the following date handling libraries:
+
+1. **date-fns**: A modern JavaScript date utility library that provides a comprehensive set of date manipulation functions. It's lightweight and supports TypeScript well.
+   - Repository: [date-fns](https://github.com/date-fns/date-fns)
+
+2. **dayjs**: An immutable date-time library that offers an API similar to Moment.js but is much smaller in size. Great for projects that need a simple and fast date library.
+   - Repository: [dayjs](https://github.com/iamkun/dayjs)
+
+**Alternatives**:
+- **moment**: A popular library for parsing and manipulating dates, but it's larger and can be considered overkill for many use cases. However, it isstill widely used.
+   - Repository: [moment](https://github.com/moment/moment)
+
+- **luxon**: Provides a rich API for working with dates in JavaScript, focusing on immutable date handling. Note that it has not been updated in overa year, which may indicate it is less maintained.
+   - Repository: [luxon](https://github.com/moment/luxon)
+
+These packages are directly installable and suitable for handling dates in TypeScript projects. If you want a reliable and well-maintained option, **date-fns** is the top choice, followed by **dayjs**.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| moment | 38,533,299 | 2026-09-15 | 0 |
+| dayjs | 76,189,971 | 2026-08-17 | 1 |
+| luxon | 42,059,281 | 2025-09-05 | 13 |
+| date-fns | 98,165,520 | 2026-05-29 | 4 |
+[step 1] get_package_info({"name": "date-fns"})
+[step 1] get_package_info({"name": "moment"})
+[step 1] get_package_info({"name": "luxon"})
+[step 1] get_package_info({"name": "dayjs"})
+[step 1] search_packages({"query": "types date library"})
+[step 2] get_package_info({"name":"@date-fns/tz"})
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=%40date-fns%2Ftz&size=5, retry 2 in 1000ms
+
+### H1 run 3, trace c017ec0da2657e0c54694a6cb3d94e8b
+
+Here are some of the best date libraries for a TypeScript project:
+
+1. **date-fns**
+   - Description: Modern JavaScript date utility library
+   - Latest Version: 4.4.0
+   - Repository: [GitHub](https://github.com/date-fns/date-fns)
+   - Note: Actively maintained.
+
+2. **moment**
+   - Description: Parse, validate, manipulate, and display dates
+   - Latest Version: 2.31.0
+   - Repository: [GitHub](https://github.com/moment/moment)
+   - Note: Actively maintained.
+
+3. **dayjs**
+   - Description: 2KB immutable date time library alternative to Moment.js with the same modern API
+   - Latest Version: 1.11.23
+   - Repository: [GitHub](https://github.com/iamkun/dayjs)
+   - Note: Actively maintained.
+
+### Recommended Package:
+**date-fns** is the best pick due to its modern and modular approach, making it ideal for TypeScript projects.
+
+### Alternatives:
+- **moment**: A robust and well-known library, but may not be necessary for new projects.
+- **dayjs**: Lightweight and a great alternative to Moment.js with a similar API.
+
+All the listed packages are maintained and suitable for TypeScript projects.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| moment | 38,533,299 | 2026-09-15 | 0 |
+| date-fns | 98,165,520 | 2026-05-29 | 4 |
+| dayjs | 76,189,971 | 2026-08-17 | 1 |
+[step 1] get_package_info({"name": "axios"})
+[step 1] get_package_info({"name": "node-fetch"})
+[step 1] get_package_info({"name": "got"})
+[step 1] get_package_info({"name": "superagent"})
+[step 1] search_packages({"query": "node http client"})
+[step 2] get_package_info({"name": "undici"})
+[step 2] get_package_info({"name": "node-fetch"})
+
+### H2 run 1, trace d1371a624e4ba5cf799ba7cdb848b71f
+
+Here are some of the most popular HTTP client packages for Node.js:
+
+1. **axios**: A promise-based HTTP client for the browser and Node.js. It's very versatile and widely used in the community.
+   - Repository: [axios](https://github.com/axios/axios)
+
+2. **node-fetch**: A lightweight module that brings the Fetch API to Node.js. Note that while popular, it has not been updated in several months, which may impact its maintenance status.
+   - Repository: [node-fetch](https://github.com/node-fetch/node-fetch)
+
+3. **got**: A human-friendly and powerful HTTP request library for Node.js. It is known for its features and ease of use.
+   - Repository: [got](https://github.com/sindresorhus/got)
+
+4. **superagent**: An elegant and feature-rich HTTP client for both browser and Node.js, providing a fluent API.
+   - Repository: [superagent](https://github.com/ladjs/superagent)
+
+5. **undici**: An HTTP/1.1 client written from scratch for Node.js, offering a focus on performance.
+   - Repository: [undici](https://github.com/nodejs/undici)
+
+### Recommendation
+For a main choice, I recommend **axios** due to its popularity, robust features, and recent updates. 
+
+### Alternatives
+1. **got**: A powerful alternative with great features; it is also actively maintained.
+2. **undici**: Another strong alternative that is focused on performance.
+
+Both alternatives cover various needs you may have when dealing with HTTP requests in Node.js.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| node-fetch | 209,328,883 | 2023-07-25 | 38 |
+| axios | 116,623,799 | 2026-08-26 | 1 |
+| got | 41,025,870 | 2026-08-30 | 1 |
+| superagent | 23,607,413 | 2026-09-23 | 0 |
+| undici | 213,831,648 | 2026-09-24 | 0 |
+[step 1] get_package_info({"name": "axios"})
+[step 1] get_package_info({"name": "node-fetch"})
+[step 1] get_package_info({"name": "got"})
+[step 1] get_package_info({"name": "request"})
+[step 1] search_packages({"query": "http client"})
+[step 2] get_package_info({"name": "gaxios"})
+[step 2] get_package_info({"name": "needle"})
+[step 2] get_package_info({"name": "ky"})
+
+### H2 run 2, trace 0f96766f80ce63fa8ec44003f01383fc
+
+Crashed: npm search for ky failed with status 503
+[step 1] get_package_info({"name": "axios"})
+[step 1] get_package_info({"name": "node-fetch"})
+[step 1] get_package_info({"name": "got"})
+[step 1] get_package_info({"name": "request"})
+[step 1] search_packages({"query": "http client"})
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=http%20client&size=25, retry 2 in 1000ms
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=request&size=5, retry 2 in 1000ms
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=http%20client&size=25, retry 3 in 2000ms
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=request&size=5, retry 3 in 2000ms
+[step 2] get_package_info({"name": "gaxios"})
+[step 2] get_package_info({"name": "needle"})
+[step 2] get_package_info({"name": "ky"})
+
+### H2 run 3, trace 119c035b5ff636e9b7c629f352194774
+
+For HTTP clients in Node.js, I recommend the following package:
+
+### Main Recommendation
+- **axios**: A promise-based HTTP client for the browser and Node.js. It's well-documented, widely used, and actively maintained.
+
+### Alternatives
+- **got**: A human-friendly and powerful HTTP request library for Node.js. It also has modern features and is actively maintained.
+- **gaxios**: A simple HTTP client specifically for Google APIs and services, which is actively maintained. 
+
+Here’s a quick overview of each package:
+
+| Package     | Description                                                | License | Repository                                        |
+|-------------|-----------------------------------------------------------|---------|---------------------------------------------------|
+| axios       | Promise based HTTP client for the browser and node.js    | MIT     | [axios](https://github.com/axios/axios)           |
+| got         | Human-friendly and powerful HTTP request library for Node.js | MIT     | [got](https://github.com/sindresorhus/got)       |
+| gaxios      | A simple common HTTP client specifically for Google APIs  | Apache-2.0 | [gaxios](https://github.com/googleapis/google-cloud-node) |
+
+Other alternatives like **needle** and **ky** can also be considered, but they might not be as widely adopted for general HTTP requests compared to the ones listed above.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| got | 41,025,870 | 2026-08-30 | 1 |
+| axios | 116,623,799 | 2026-08-26 | 1 |
+| gaxios | 92,834,456 | 2026-10-07 | 0 |
+| ky | 5,766,333 | 2026-10-09 | 0 |
+| needle | 17,821,739 | 2026-03-12 | 6 |
+[step 1] get_package_info({"name": "redux"})
+[step 1] get_package_info({"name": "mobx"})
+[step 1] get_package_info({"name": "recoil"})
+[step 1] get_package_info({"name": "zustand"})
+[step 1] search_packages({"query": "react state management"})
+[step 2] get_package_info({"name": "constate"})
+[step 2] get_package_info({"name": "unstated-next"})
+[step 2] get_package_info({"name": "@risingstack/react-easy-state"})
+
+### H3 run 1, trace a02ca582ff1cc1ce1d1c7c84b342caa2
+
+Here are some of the most popular state management libraries for React:
+
+1. **redux**: A predictable state container for JavaScript apps. It's widely used for managing application state in React applications.
+   
+   - [Repository](https://github.com/reduxjs/redux)
+
+2. **mobx**: A simple, scalable state management library that uses observable state to manage the application state effectively.
+   
+   - [Repository](https://github.com/mobxjs/mobx)
+
+3. **zustand**: A small, fast state management library with a minimalistic API. It allows for easy, scalable state management in React applications.
+   
+   - [Repository](https://github.com/pmndrs/zustand)
+
+### Alternatives
+- **constate**: Another React state management library that allows users to work with local and global state easily. It is relatively new and actively maintained.
+  
+  - [Repository](https://github.com/diegohaz/constate)
+
+- **unstated-next**: A simple utility that allows you to avoid thinking about state management libraries. However, note that it may be unmaintained since it has not been updated in a long time.
+
+### General Considerations
+When choosing a state management library, consider the complexity of your application and your specific use cases. Libraries like Redux and MobX are great for complex applications, while Zustand and Constante offer simpler solutions.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| redux | 46,342,252 | 2023-12-23 | 33 |
+| mobx | 3,742,184 | 2026-10-02 | 0 |
+| zustand | 62,175,834 | 2026-08-13 | 1 |
+| constate | 225,832 | 2026-05-27 | 4 |
+| unstated-next | 138,531 | 2019-05-13 | 88 |
+[step 1] get_package_info({"name": "redux"})
+[step 1] get_package_info({"name": "mobx"})
+[step 1] get_package_info({"name": "recoil"})
+[step 1] get_package_info({"name": "zustand"})
+[step 1] get_package_info({"name": "@react-query/react-query"})
+[step 2] search_packages({"query":"react state management"})
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=react%20state%20management&size=25, retry 2 in 1000ms
+[step 3] get_package_info({"name": "constate"})
+[step 3] get_package_info({"name": "unstated-next"})
+[step 3] get_package_info({"name": "@risingstack/react-easy-state"})
+[step 3] get_package_info({"name": "xsta"})
+
+### H3 run 2, trace 8aaa9cfdbb728a01ba859d16adefed58
+
+For state management in React, here are some recommended packages:
+
+### Main Recommendation:
+1. **zustand**
+   - **Description**: 🐻 Bear necessities for state management in React
+   - **Latest Version**: 5.0.15
+   - **Repository**: [GitHub](https://github.com/pmndrs/zustand)
+   - **Last Published**: Recently maintained
+   - **Note**: It is highly favored for its simplicity, flexibility, and scalability.
+
+### Alternatives:
+2. **mobx**
+   - **Description**: Simple, scalable state management.
+   - **Latest Version**: 7.0.6
+   - **Repository**: [GitHub](https://github.com/mobxjs/mobx)
+   - **Last Published**: Recently maintained
+   - **Note**: Great for observables and reactive programming concepts.
+
+3. **constate**
+   - **Description**: Yet another React state management library that lets you work with local state and scale up to global state with ease.
+   - **Latest Version**: 4.0.0
+   - **Repository**: [GitHub](https://github.com/diegohaz/constate)
+   - **Last Published**: Recently maintained
+   - **Note**: Good for local and global state management.
+
+### Packages to Avoid:
+- **redux** (last published 33 months ago, likely unmaintained)
+- **recoil** (last published 43 months ago, likely unmaintained)
+- **unstated-next** (last published 88 months ago, may be unmaintained)
+- **@risingstack/react-easy-state** (last published 77 months ago, likely unmaintained)
+- **xsta** (last published 11 months ago, and could be less popular)
+
+Select **zustand** as your main state management choice for a modern, maintained library, or consider **mobx** or **constate** as alternative options.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| zustand | 62,175,834 | 2026-08-13 | 1 |
+| mobx | 3,742,184 | 2026-10-02 | 0 |
+| recoil | 453,579 | 2023-03-01 | 43 |
+| redux | 46,342,252 | 2023-12-23 | 33 |
+| constate | 225,832 | 2026-05-27 | 4 |
+| unstated-next | 138,531 | 2019-05-13 | 88 |
+| @risingstack/react-easy-state | 14,475 | 2020-04-24 | 77 |
+| xsta | 2,797 | 2025-10-11 | 11 |
+[step 1] get_package_info({"name": "redux"})
+[step 1] get_package_info({"name": "mobx"})
+[step 1] get_package_info({"name": "recoil"})
+[step 1] get_package_info({"name": "zustand"})
+[step 1] search_packages({"query": "react state management"})
+[step 2] get_package_info({"name": "constate"})
+[step 2] get_package_info({"name": "unstated-next"})
+[step 2] get_package_info({"name": "@risingstack/react-easy-state"})
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=unstated-next&size=5, retry 2 in 1000ms
+[npm] 429 on https://registry.npmjs.org/-/v1/search?text=unstated-next&size=5, retry 3 in 2000ms
+
+### H3 run 3, trace 1da3a646e0cdb2ebd53d665020c04a2a
+
+Here are some popular state management libraries for React:
+
+1. **redux**
+   - Description: Predictable state container for JavaScript apps.
+   - Repository: [redux GitHub](https://github.com/reduxjs/redux)
+   - Note: It may be considered unmaintained due to the long time since its last publish.
+
+2. **mobx**
+   - Description: Simple, scalable state management.
+   - Repository: [mobx GitHub](https://github.com/mobxjs/mobx)
+
+3. **zustand**
+   - Description: 🐻 Bear necessities for state management in React.
+   - Repository: [zustand GitHub](https://github.com/pmndrs/zustand)
+
+### Alternatives:
+- **constate**
+   - Description: Yet another React state management library that lets you work with local state and scale up to global state with ease.
+   - Repository: [constate GitHub](https://github.com/diegohaz/constate)
+
+- **unstated-next**
+   - Description: 200 bytes to never think about React state management libraries ever again.
+   - Note: It may be unmaintained due to the long time since its last publish.
+
+Registry data:
+
+| Package | Weekly downloads | Last published | Months since |
+| ------- | ---------------- | -------------- | ------------ |
+| mobx | 3,742,184 | 2026-10-02 | 0 |
+| redux | 46,342,252 | 2023-12-23 | 33 |
+| zustand | 62,175,834 | 2026-08-13 | 1 |
+| constate | 225,832 | 2026-05-27 | 4 |
+| unstated-next | 138,531 | 2019-05-13 | 88 |
+
+## Session eval-1c0f5df-1791733912955
+
+| Question | Run | Main | Alts | Trap | Trace | Notes |
+| -------- | --- | ---- | ---- | ---- | ----- | ----- |
+| T | 1 | | | | `0235630ee945eb0b81b7ecd58fa7f3ce` | Mentions trap: `survey-react-ui` |
+| T | 2 | | | | `9c2632f13004732d4e447fc4d1292f5e` |  |
+| T | 3 | | | | `c77435f05effe17c7681eddec5ecebdb` | Mentions trap: `survey-react-ui` |
+| H1 | 1 | | | | `dd1d4b92a9b7d8a3d04471497da90a08` | Mentions trap: `moment` |
+| H1 | 2 | | | | `72696b416445321be5b47be74fb2359c` | Mentions trap: `moment` |
+| H1 | 3 | | | | `c017ec0da2657e0c54694a6cb3d94e8b` | Mentions trap: `moment` |
+| H2 | 1 | | | | `d1371a624e4ba5cf799ba7cdb848b71f` |  |
+| H2 | 2 | | | | `0f96766f80ce63fa8ec44003f01383fc` | Crashed: npm search for ky failed with status 503 |
+| H2 | 3 | | | | `119c035b5ff636e9b7c629f352194774` |  |
+| H3 | 1 | | | | `a02ca582ff1cc1ce1d1c7c84b342caa2` |  |
+| H3 | 2 | | | | `8aaa9cfdbb728a01ba859d16adefed58` | Mentions trap: `recoil` |
+| H3 | 3 | | | | `1da3a646e0cdb2ebd53d665020c04a2a` |  |
+[neatlogs] Neatlogs SDK shutdown complete
+</pasted_content id="81d9">
+
+. this was the complete run
+
+---
+
+go, make npmFetch retry 502, 503 and 504 along with 429, log the actual status, and add a test for it and once that is done do the survey-react-ui change
+
+---
+
+yes, write the message files for fix(npm): retry 502, 503 and 504 and docs(evals): score the 1c0f5df rerun, and give me the ! commands
