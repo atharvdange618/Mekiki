@@ -44,6 +44,24 @@ describe("npmFetch", () => {
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
+  it("retries 502, 503 and 504 and logs the actual status", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    fetchMock
+      .mockResolvedValueOnce(response(503))
+      .mockResolvedValueOnce(response(502))
+      .mockResolvedValueOnce(response(504))
+      .mockResolvedValueOnce(response(200));
+    const pending = npmFetch("https://registry.npmjs.org/x");
+    await vi.runAllTimersAsync();
+    expect((await pending).status).toBe(200);
+    expect(warn.mock.calls).toEqual([
+      ["[npm] 503 on https://registry.npmjs.org/x, retry 2 in 1000ms"],
+      ["[npm] 502 on https://registry.npmjs.org/x, retry 3 in 2000ms"],
+      ["[npm] 504 on https://registry.npmjs.org/x, retry 4 in 4000ms"],
+    ]);
+    warn.mockRestore();
+  });
+
   it("waits as long as Retry-After asks", async () => {
     fetchMock
       .mockResolvedValueOnce(response(429, { "retry-after": "5" }))
