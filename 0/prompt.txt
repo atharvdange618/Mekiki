@@ -1,0 +1,17 @@
+help me score Main, Alts and Trap for the 12 after rows in evals.md, pull the answers from the scratchpad evals-after.md
+
+---
+
+go, score the 12 before rows in evals.md from evals-before.md the same way, then update the prediction row. also can we do something about this npm crash thing?
+
+---
+
+yes, make getPackageInfo throw when the search call fails instead of returning null downloads, and add a test for it
+
+---
+
+run pnpm evals and tell me if H3 run 3 gets through without the 429 crash
+
+---
+
+yes, add the retry logging to npmFetch with a test, then commit the three groups you proposed
