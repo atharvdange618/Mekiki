@@ -200,3 +200,39 @@ Main held at every run. The holdout trap stayed the same: `moment` as an alterna
 Alts rose, against the prediction. Per question: T 4 to 6 of 6, H1 3 to 3 of 6, H2 3 to 6 of 6, H3 2 of 6 to 3 of 4. The before answers filled slots from search results: `survey-react-ui` (a tuning trap), `final-form`, `gaxios`, `needle`, `constate`. None of those appear as picks after. The after runs also looked up more accepted packages in step 1 (`react-final-form`, `undici`, `@reduxjs/toolkit`), so part of the gain may come from what the model chose to check, not from how it wrote. With 3 runs per question, this is a lead, not a result.
 
 Both batches carry the tag `commit:9ffc58a-dirty`, because neither change was committed. The session IDs tell them apart, but the commit tag can't. Commit a prompt change before running its "after" batch.
+
+## Rerun at `1c0f5df`, session `eval-1c0f5df-1791733912955`
+
+Same prompt as the "after" batch above. Commit `185890e` only added retries for npm 429s and made a failed search lookup throw, so neither changes what the model sees on a good run. No predictions, since this batch was run to test the retry, not a change to the agent. It still shows how much the scores move between two runs of the same prompt.
+
+When an answer names no main pick, Main scores No. Notes say what the list led with.
+
+| Question | Run | Main | Alts | Trap | Trace | Notes |
+| -------- | --- | ---- | ---- | ---- | ----- | ----- |
+| T | 1 | No (none named) | 0 (`survey-react-ui`, `@jiin.seok/formkit-react`) | Yes (`survey-react-ui`) | `0235630ee945eb0b81b7ecd58fa7f3ce` | List led with `react-hook-form`, then `formik` and `@tanstack/react-form`, none of them picked |
+| T | 2 | Yes (`react-hook-form`) | 2 (`formik`, `react-final-form`) | No | `9c2632f13004732d4e447fc4d1292f5e` |  |
+| T | 3 | Yes (`react-hook-form`) | 0 (`survey-react-ui`, `@jcoreio/zod-forms`) | Yes (`survey-react-ui`) | `c77435f05effe17c7681eddec5ecebdb` | Listed `formik` and `react-final-form` in its top 3 but put search results under "Alternatives" |
+| H1 | 1 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `dd1d4b92a9b7d8a3d04471497da90a08` | First answer to warn about `moment`'s status ("possible future deprecation"), then recommended it anyway |
+| H1 | 2 | Yes (`date-fns`) | 1 (`luxon`) | Yes (`moment`) | `72696b416445321be5b47be74fb2359c` | `dayjs` named as second choice outside the heading. First time `luxon` is an alternative with an age warning, as the freshness fix predicted |
+| H1 | 3 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `c017ec0da2657e0c54694a6cb3d94e8b` | Called `moment` "actively maintained". Looked up `luxon`, then left it out without a word |
+| H2 | 1 | Yes (`axios`) | 2 (`got`, `undici`) | No | `d1371a624e4ba5cf799ba7cdb848b71f` | Said `node-fetch` "has not been updated in several months". The table says 38 |
+| H2 | 2 | n/a | n/a | n/a | `0f96766f80ce63fa8ec44003f01383fc` | Crashed: npm search for ky failed with status 503 |
+| H2 | 3 | Yes (`axios`) | 1 (`got`; `gaxios` scores nothing) | No | `119c035b5ff636e9b7c629f352194774` | Picked `gaxios`, the Google APIs client, again |
+| H3 | 1 | No (none named) | 0 (`constate`, `unstated-next`) | No | `a02ca582ff1cc1ce1d1c7c84b342caa2` | List led with `redux` (33 months) with no warning, then `mobx`, `zustand` |
+| H3 | 2 | Yes (`zustand`) | 1 (`mobx`; `constate` scores nothing) | No | `8aaa9cfdbb728a01ba859d16adefed58` | Put `recoil` under "Packages to Avoid" |
+| H3 | 3 | No (none named) | 0 (`constate`, `unstated-next`) | No | `1da3a646e0cdb2ebd53d665020c04a2a` | List led with `redux`, flagged as maybe unmaintained |
+
+|                 | Main   | Alts     | Trap   |
+| --------------- | ------ | -------- | ------ |
+| Tuning, after   | 3 of 3 | 6 of 6   | 0 of 3 |
+| Tuning, rerun   | 2 of 3 | 2 of 6   | 2 of 3 |
+| Holdout, after  | 8 of 8 | 12 of 16 | 3 of 8 |
+| Holdout, rerun  | 6 of 8 | 7 of 16  | 3 of 8 |
+
+Both have 8 holdout runs: one crash each.
+
+Same prompt, much worse scores. `survey-react-ui` went from 0 of 3 to 2 of 3, Alts dropped back to the level of the "before" batch, and 3 of 11 answers named no main pick, which no earlier batch did. So the Alts rise in the verified-numbers comparison (8 of 18 to 12 of 16) sits inside the spread between two runs of one prompt. It wasn't the fix. With 3 runs per question, a batch can't tell a change of 4 or 5 Alts from noise. Comparing prompts needs more runs per question, or several batches per side.
+
+`moment` is the one steady result: an alternative in all 3 H1 runs, in every batch since the freshness fix.
+
+The retry logged 11 retries across 5 runs, all recovered. Without it, those 5 runs would have crashed. The one crash left was a 503, which `npmFetch` didn't retry at the time. It now retries 502, 503 and 504 too.
