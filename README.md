@@ -35,7 +35,7 @@ $ npm start -- "best React form library?"
    ```bash
    git clone https://github.com/atharvdange618/Mekiki.git
    cd Mekiki
-   npm install
+   pnpm install
    ```
 
 2. Copy the example env file:
@@ -57,14 +57,14 @@ $ npm start -- "best React form library?"
 4. Check that everything typechecks:
 
    ```bash
-   npm run typecheck
+   pnpm run typecheck
    ```
 
 ## Run it
 
 ```bash
-npm start
-npm start -- "which HTTP client should I use in Node?"
+pnpm start
+pnpm start -- "which HTTP client should I use in Node?"
 ```
 
 With no question, it asks about date libraries. Each run prints the tool calls it makes as `[step N]` lines, then the answer. The last line, `[neatlogs] Neatlogs SDK shutdown complete`, means the trace was sent.
@@ -169,5 +169,5 @@ Each hook checks for the `entire` command first and exits quietly if it can't fi
 
 | Command             | What it does                                                   |
 | ------------------- | -------------------------------------------------------------- |
-| `npm start`         | Runs the agent. Add `-- "your question"` to ask something else |
-| `npm run typecheck` | Runs `tsc --noEmit`                                            |
+| `pnpm start`         | Runs the agent. Add `-- "your question"` to ask something else |
+| `pnpm run typecheck` | Runs `tsc --noEmit`                                            |
