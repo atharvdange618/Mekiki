@@ -21,7 +21,6 @@ await init({
 
 const client = wrapOpenAI(
   new OpenAI({
-    baseURL: "https://api.aicredits.in/v1",
     apiKey: apiKey,
   }),
 );
