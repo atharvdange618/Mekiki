@@ -8,6 +8,7 @@ Mekiki is a command line agent that recommends npm packages. You ask a question,
 | ----------------- | ------------------------------------------------------------------------ |
 | `agent.ts`        | The whole agent: tool schemas, tool functions, and the loop              |
 | `report.ts`       | Pure text helpers: the registry data table and the eval results table    |
+| `npm.ts`          | `fetch` for the npm registry that retries 429s, up to 4 tries            |
 | `evals.ts`        | Runs the eval questions 3 times each as one neatlogs session (`pnpm evals`) |
 | `README.md`       | What Mekiki is, setup, and things to try                                 |
 | `.env`            | `OPENAI_API_KEY`, `OPENAI_MODEL` and `NEATLOGS_API_KEY`, never committed |
