@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4NF0BKMEVS8VYPEFJ2VDB26",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 7,
+  "files_touched": [
+    "agent.ts",
+    "evals.ts",
+    "package.json",
+    "pnpm-lock.yaml",
+    "report.test.ts",
+    "report.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 120,
+    "cache_creation_tokens": 168572,
+    "cache_read_tokens": 8745356,
+    "output_tokens": 49468,
+    "api_call_count": 60
+  }
+}
