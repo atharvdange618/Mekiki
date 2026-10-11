@@ -136,18 +136,18 @@ Run with `pnpm evals`. Each batch is one neatlogs session, and the runner prints
 
 | Question | Run | Main | Alts | Trap | Trace | Notes |
 | -------- | --- | ---- | ---- | ---- | ----- | ----- |
-| T | 1 | | | | `14a281e8b0cd575db6bfa6256b41c8da` |  |
-| T | 2 | | | | `607545d0caa51bd136cff5388a301eec` |  |
-| T | 3 | | | | `a8f3c4f90a11d688ed36ba9fd6eb4063` |  |
-| H1 | 1 | | | | `e3abbd163b24ea309a25a285f9d2d8b1` | Mentions trap: `moment` |
-| H1 | 2 | | | | `93bb850ed9808b7c07be569b3796a3d3` | Mentions trap: `moment` |
-| H1 | 3 | | | | `834c173c19faa6fcc37a2eb3a3576cf3` | Mentions trap: `moment`. Says `luxon` is 12 months, tool says 13 |
-| H2 | 1 | | | | `503b859562c9f3ccc1b799e69f961a79` | Says `node-fetch` was published "3 months ago" and is "actively maintained", next to its July 2023 date |
-| H2 | 2 | | | | `05099ff864a47ab32e1f52236f2a684b` | Mentions trap: `request` |
-| H2 | 3 | | | | `4b88f0d07e6dd586119152484d5cb845` |  |
-| H3 | 1 | | | | `b264907ba22797eca513676a1e60f432` |  |
-| H3 | 2 | | | | `dd9462a69cb4b7b671776a608b8ca6cc` | Mentions trap: `recoil` |
-| H3 | 3 | | | | `0962c5726e80f341151c2ee5c91a8765` |  |
+| T | 1 | Yes (`react-hook-form`) | 1 (`formik`) | Yes (`survey-react-ui`) | `14a281e8b0cd575db6bfa6256b41c8da` | Picked `survey-react-ui` from search results as an alternative |
+| T | 2 | Yes (`react-hook-form`) | 2 (`formik`, `@tanstack/react-form`) | No | `607545d0caa51bd136cff5388a301eec` |  |
+| T | 3 | Yes (`react-hook-form`) | 1 (`formik`; `final-form` scores nothing) | No | `a8f3c4f90a11d688ed36ba9fd6eb4063` |  |
+| H1 | 1 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `e3abbd163b24ea309a25a285f9d2d8b1` | Mentions trap: `moment` |
+| H1 | 2 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `93bb850ed9808b7c07be569b3796a3d3` | Mentions trap: `moment` |
+| H1 | 3 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `834c173c19faa6fcc37a2eb3a3576cf3` | Mentions trap: `moment`. Says `luxon` is 12 months, tool says 13 |
+| H2 | 1 | Yes (`axios`) | 1 (`superagent`; `node-fetch` scores nothing) | No | `503b859562c9f3ccc1b799e69f961a79` | Says `node-fetch` was published "3 months ago" and is "actively maintained", next to its July 2023 date |
+| H2 | 2 | Yes (`axios`) | 1 (`superagent`; `gaxios` scores nothing) | No | `05099ff864a47ab32e1f52236f2a684b` | Mentions trap: `request`. The "Alternatives" heading has `superagent` and `gaxios`, the closing line names `got`. Both readings give 1 |
+| H2 | 3 | Yes (`axios`) | 1 (`superagent`; `needle` scores nothing) | No | `4b88f0d07e6dd586119152484d5cb845` |  |
+| H3 | 1 | Yes (`zustand`) | 1 (`mobx`; `constate` scores nothing) | No | `b264907ba22797eca513676a1e60f432` | Scored from the closing recommendation (`mobx`, `constate`). The "Alternatives" heading holds `constate` and `unstated-next`, which would give 0 |
+| H3 | 2 | Yes (`zustand`) | 1 (`mobx`; `constate` scores nothing) | No | `dd9462a69cb4b7b671776a608b8ca6cc` | Mentions trap: `recoil` |
+| H3 | 3 | Yes (`zustand`) | 0 (`constate`, `unstated-next`) | No | `0962c5726e80f341151c2ee5c91a8765` | Listed `mobx` and `@reduxjs/toolkit` in its top 3 but put `constate` and `unstated-next` under "Alternatives" |
 
 At least 2 of 12 answers state a wrong number. That count is a floor: it only covers numbers checkable from the answer text and the earlier `fecha` trace.
 
@@ -166,24 +166,37 @@ Notes below come from the fixed matcher. The first version counted "request" in 
 
 | Question | Run | Main | Alts | Trap | Trace | Notes |
 | -------- | --- | ---- | ---- | ---- | ----- | ----- |
-| T | 1 | | | | `0a35e35ad0c55fb40de805aec7870c35` |  |
-| T | 2 | | | | `7f5e47e8635c7782b57fef52afb622f3` |  |
-| T | 3 | | | | `96df3dadcbe80d13799e2049300c2504` |  |
-| H1 | 1 | | | | `9bb280ecc60a11546da6b272c6218edb` | Mentions trap: `moment`. Wrote `luxon` 13 months and `xdate` 26 months itself |
-| H1 | 2 | | | | `528aae459ab3f430b9d452e38df06b5d` | Mentions trap: `moment`. Wrote its own table with publish dates |
-| H1 | 3 | | | | `f5cc99072ae81883dd900c0556570b42` | Mentions trap: `moment` |
-| H2 | 1 | | | | `38661850411203d8f66edb1e9936245c` |  |
-| H2 | 2 | | | | `254d3343006c7410332b8c2c3a859013` |  |
-| H2 | 3 | | | | `0f19c9fcfdee96016207832146a6ddb2` | Wrote its own table with publish dates |
-| H3 | 1 | | | | `828fd19c506c4fccbf8f14da1d5c2de5` |  |
-| H3 | 2 | | | | `d78c5c8bfdda1158d22afdf01e78b263` |  |
-| H3 | 3 | | | | `cc5ab175d86b8f038f419f36f12ff74c` | Crashed: npm search failed with status 429 |
+| T | 1 | Yes (`react-hook-form`) | 2 (`formik`, `react-final-form`) | No | `0a35e35ad0c55fb40de805aec7870c35` |  |
+| T | 2 | Yes (`react-hook-form`) | 2 (`formik`, `react-final-form`) | No | `7f5e47e8635c7782b57fef52afb622f3` |  |
+| T | 3 | Yes (`react-hook-form`) | 2 (`formik`, `react-final-form`) | No | `96df3dadcbe80d13799e2049300c2504` |  |
+| H1 | 1 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `9bb280ecc60a11546da6b272c6218edb` | Mentions trap: `moment`. Wrote `luxon` 13 months and `xdate` 26 months itself |
+| H1 | 2 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `528aae459ab3f430b9d452e38df06b5d` | Mentions trap: `moment`. Wrote its own table with publish dates |
+| H1 | 3 | Yes (`date-fns`) | 1 (`dayjs`) | Yes (`moment`) | `f5cc99072ae81883dd900c0556570b42` | Mentions trap: `moment` |
+| H2 | 1 | Yes (`axios`) | 2 (`got`, `superagent`) | No | `38661850411203d8f66edb1e9936245c` |  |
+| H2 | 2 | Yes (`axios`) | 2 (`undici`, `got`) | No | `254d3343006c7410332b8c2c3a859013` |  |
+| H2 | 3 | Yes (`axios`) | 2 (`superagent`, `got`) | No | `0f19c9fcfdee96016207832146a6ddb2` | Wrote its own table with publish dates |
+| H3 | 1 | Yes (`zustand`) | 1 (`mobx`; `redux` scores nothing) | No | `828fd19c506c4fccbf8f14da1d5c2de5` |  |
+| H3 | 2 | Yes (`@reduxjs/toolkit`) | 2 (`mobx`, `zustand`) | No | `d78c5c8bfdda1158d22afdf01e78b263` |  |
+| H3 | 3 | n/a | n/a | n/a | `cc5ab175d86b8f038f419f36f12ff74c` | Crashed: npm search failed with status 429 |
 
 | Prediction | Held? |
 | --- | --- |
 | Wrong numbers in the appended table: 0 | Yes. All 11 answers got a table, copied from tool data |
 | Wrong numbers in the model's own text drop, not to 0 | Yes. 3 of 11 answers still wrote numbers. None I could check were wrong, against at least 2 of 12 before |
-| Main, Alts and Trap unchanged | Not scored yet. Trap mentions: `moment` 3 of 3 in both batches, `recoil` 1 of 3 before and 0 of 3 after |
+| Main, Alts and Trap unchanged | Main and holdout Trap, yes. Alts, no: they went up. See below |
 | A pick under a non-npm name gets no table row | Not checked |
+
+|                  | Main   | Alts     | Trap   |
+| ---------------- | ------ | -------- | ------ |
+| Tuning, before   | 3 of 3 | 4 of 6   | 1 of 3 |
+| Tuning, after    | 3 of 3 | 6 of 6   | 0 of 3 |
+| Holdout, before  | 9 of 9 | 8 of 18  | 3 of 9 |
+| Holdout, after   | 8 of 8 | 12 of 16 | 3 of 8 |
+
+The after holdout has 8 runs, since H3 run 3 crashed.
+
+Main held at every run. The holdout trap stayed the same: `moment` as an alternative in all 3 H1 runs of both batches. The fix can't reach that one, since the registry data for `moment` looks healthy.
+
+Alts rose, against the prediction. Per question: T 4 to 6 of 6, H1 3 to 3 of 6, H2 3 to 6 of 6, H3 2 of 6 to 3 of 4. The before answers filled slots from search results: `survey-react-ui` (a tuning trap), `final-form`, `gaxios`, `needle`, `constate`. None of those appear as picks after. The after runs also looked up more accepted packages in step 1 (`react-final-form`, `undici`, `@reduxjs/toolkit`), so part of the gain may come from what the model chose to check, not from how it wrote. With 3 runs per question, this is a lead, not a result.
 
 Both batches carry the tag `commit:9ffc58a-dirty`, because neither change was committed. The session IDs tell them apart, but the commit tag can't. Commit a prompt change before running its "after" batch.
