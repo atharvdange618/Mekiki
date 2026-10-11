@@ -35,7 +35,7 @@ Each tool has two halves. The schema in `tools` is what the model reads. The fun
 | Tool                     | Source                                                  | Returns                                                                                                                            |
 | ------------------------ | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `search_packages(query)` | npm search API, 25 results                              | Top 8 by weekly downloads: name, description, downloads                                                                            |
-| `get_package_info(name)` | `/<name>/latest` plus an exact-name search, in parallel | Description, version, last publish date, months since that publish, license, repository, downloads, deprecation, or `found: false` |
+| `get_package_info(name)` | The full package document plus the downloads API, in parallel, cached per process | Description, version, last publish date, months since that publish, license, repository, downloads, deprecation, or `found: false` |
 
 Tool results go back as JSON strings and stay in the context for every later turn, so each tool returns only the fields the model needs.
 
@@ -60,7 +60,6 @@ WORKFLOW advise
 ## Known gaps
 
 - If npm returns an error status, the tool throws and the whole run crashes. The model never gets a chance to recover.
-- Deprecated packages often drop out of npm search, so their publish date and downloads come back `null`.
 - The registry data table only lists packages the answer formats as `**name**`, `` `name` `` or `[name]`. A pick written as "React Hook Form" gets no row.
 - `get_package_info` confirms a package exists and is maintained, not that it fits the job. If the model names the wrong package from memory, nothing catches it.
 - Search results depend heavily on wording. The tool description asks the model to try several phrasings.

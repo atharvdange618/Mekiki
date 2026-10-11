@@ -2,6 +2,16 @@
 
 Newest first. Each entry says what we chose, why, and what we turned down.
 
+## 2026-10-11: Full package document plus downloads API, cached per process
+
+Reverses the 2026-10-07 entry below. `get_package_info` used to send an exact-name search on every lookup, which put almost all of a batch's traffic on the search endpoint, the one npm throttles. The last 3-run batch logged 11 retries, all on search. Search also missed deprecated packages and anything not in its top 5 for its own name, which showed up as `unknown` rows.
+
+Now each lookup fetches the full document, for the latest version's fields and `time[latest]`, and `api.npmjs.org/downloads/point/last-week/<name>`. `time[latest]` matched search's date to the millisecond for every package we checked. The downloads API is where search gets its counts, and its numbers are newer.
+
+The 5.2 MB that ruled this out before still holds per fetch. What changed is a cache: a `Map` of promises keyed by package name, kept for the life of the process. A 10-run batch looks up `react-hook-form` once instead of 10 times. Measured compressed, the 20 packages the evals look up most come to about 3 MB together, and `react-hook-form` alone is 883 KB. A one-off CLI question gets no help from the cache and pays about 1 MB more than before.
+
+Rejected: keeping search for the date and using the downloads API only for counts. That leaves search traffic where it was, which was the point of the change.
+
 ## 2026-10-11: Code writes the numbers, not the model
 
 **Problem.** The model copies numbers between packages. Trace `93993d17d256c10674ab3a6a5da9cbf6` gave `fecha` "13 months ago", `luxon`'s age, when the tool said 53. In the baseline batch, `node-fetch` was "3 months ago" next to its July 2023 date. Computing the age in code (2026-10-08) didn't help, because the model still had to copy it.

@@ -89,17 +89,23 @@ interface SearchResult {
 
 interface NpmSearchResponse {
   objects: {
-    package: { name: string; description?: string; date?: string };
+    package: { name: string; description?: string };
     downloads?: { weekly: number };
   }[];
 }
 
-interface NpmLatestManifest {
+interface NpmVersionManifest {
   version: string;
   description?: string;
   license?: string;
   deprecated?: string;
   repository?: string | { url?: string };
+}
+
+interface NpmPackageDocument {
+  "dist-tags": { latest: string };
+  versions: Record<string, NpmVersionManifest>;
+  time: Record<string, string>;
 }
 
 type PackageInfo =
@@ -138,47 +144,65 @@ const searchPackages = span(
   },
 );
 
+// One entry per package for the life of the process: a whole eval batch, or
+// one CLI question. Holds the promise, so parallel lookups share one fetch.
+const packageCache = new Map<string, Promise<PackageInfo>>();
+
 export const getPackageInfo = span(
   { kind: "TOOL", toolName: "get_package_info" },
-  async (name: string): Promise<PackageInfo> => {
-    const encoded = encodeURIComponent(name).replace("%40", "@");
-    const [latestRes, searchRes] = await Promise.all([
-      npmFetch(`https://registry.npmjs.org/${encoded}/latest`),
-      npmFetch(
-        `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(name)}&size=5`,
-      ),
-    ]);
-
-    if (latestRes.status === 404) return { found: false, name };
-    if (!latestRes.ok)
-      throw new Error(
-        `npm lookup for ${name} failed with status ${latestRes.status}`,
-      );
-
-    if (!searchRes.ok)
-      throw new Error(
-        `npm search for ${name} failed with status ${searchRes.status}`,
-      );
-
-    const latest = (await latestRes.json()) as NpmLatestManifest;
-    const search = (await searchRes.json()) as NpmSearchResponse;
-
-    const match = search.objects.find((o) => o.package.name === name);
-
-    return {
-      found: true,
-      name,
-      description: latest.description ?? "",
-      latestVersion: latest.version,
-      lastPublished: match?.package.date ?? null,
-      monthsSinceLastPublish: monthsSince(match?.package.date),
-      license: latest.license ?? null,
-      repository: normalizeRepository(latest.repository),
-      weeklyDownloads: match?.downloads?.weekly ?? null,
-      deprecated: latest.deprecated ?? null,
-    };
+  (name: string): Promise<PackageInfo> => {
+    const cached = packageCache.get(name);
+    if (cached) return cached;
+    const pending = fetchPackageInfo(name);
+    packageCache.set(name, pending);
+    pending.catch(() => packageCache.delete(name));
+    return pending;
   },
 );
+
+async function fetchPackageInfo(name: string): Promise<PackageInfo> {
+  const encoded = encodeURIComponent(name).replace("%40", "@");
+  // ponytail: the full document lists every version, 5.2 MB for react-hook-form.
+  // The cache keeps that to one fetch per package per batch.
+  const [docRes, downloadsRes] = await Promise.all([
+    npmFetch(`https://registry.npmjs.org/${encoded}`),
+    npmFetch(`https://api.npmjs.org/downloads/point/last-week/${encoded}`),
+  ]);
+
+  if (docRes.status === 404) return { found: false, name };
+  if (!docRes.ok)
+    throw new Error(`npm lookup for ${name} failed with status ${docRes.status}`);
+
+  // A package too new to have download data gets a 404 here.
+  if (!downloadsRes.ok && downloadsRes.status !== 404)
+    throw new Error(
+      `npm downloads for ${name} failed with status ${downloadsRes.status}`,
+    );
+
+  const doc = (await docRes.json()) as NpmPackageDocument;
+  const weeklyDownloads = downloadsRes.ok
+    ? ((await downloadsRes.json()) as { downloads: number }).downloads
+    : null;
+
+  const version = doc["dist-tags"].latest;
+  const latest = doc.versions[version];
+  if (!latest)
+    throw new Error(`npm document for ${name} has no version ${version}`);
+  const published = doc.time[version];
+
+  return {
+    found: true,
+    name,
+    description: latest.description ?? "",
+    latestVersion: version,
+    lastPublished: published ?? null,
+    monthsSinceLastPublish: monthsSince(published),
+    license: latest.license ?? null,
+    repository: normalizeRepository(latest.repository),
+    weeklyDownloads,
+    deprecated: latest.deprecated ?? null,
+  };
+}
 
 const MS_PER_MONTH = 1000 * 60 * 60 * 24 * 30.44;
 
@@ -190,7 +214,7 @@ function monthsSince(isoDate: string | undefined): number | null {
 }
 
 function normalizeRepository(
-  repo: NpmLatestManifest["repository"],
+  repo: NpmVersionManifest["repository"],
 ): string | null {
   const raw = typeof repo === "string" ? repo : repo?.url;
   if (!raw) return null;
