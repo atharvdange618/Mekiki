@@ -91,8 +91,8 @@ interface NpmSearchResponse {
 interface NpmLatestManifest {
   version: string;
   description?: string;
-  license: string;
-  deprecated: string;
+  license?: string;
+  deprecated?: string;
   repository?: string | { url?: string };
 }
 
