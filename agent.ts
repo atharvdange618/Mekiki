@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import OpenAI from "openai";
 import { init, shutdown, span, wrapOpenAI } from "neatlogs";
 import {
@@ -13,10 +14,12 @@ function requireEnv(name: string): string {
 
 const model = requireEnv("OPENAI_MODEL");
 const apiKey = requireEnv("OPENAI_API_KEY");
+const commit = execFileSync("git", ["describe", "--always", "--dirty"]).toString().trim();
 
 await init({
   apiKey: requireEnv("NEATLOGS_API_KEY"),
   workflowName: "npm-advisor",
+  tags: [`commit:${commit}`, `model:${model}`],
 });
 
 const client = wrapOpenAI(
