@@ -1,0 +1,264 @@
+---
+title: "My First AI Agent Was Wrong for Every Reason Except the Model"
+publishedAt: "2026-10-11"
+tags:
+  - "ai-agents"
+  - "llm"
+  - "tool-calling"
+  - "openai"
+  - "observability"
+  - "neatlogs"
+  - "evals"
+  - "typescript"
+  - "mekiki"
+
+featured: true
+description: "What I learned building Mekiki, my first AI agent: an npm package advisor that kept giving wrong answers. Each time, the traces showed the model doing its best with bad input, a missing date, or a rule I had written badly."
+summary: "I built Mekiki, an agent that recommends npm packages, to learn how agents actually work. It runs a tool calling loop with two tools that read the npm registry, and every run is traced with neatlogs. Almost every wrong answer came from what the tools handed the model: a search that cut off the right package, download counts that rewarded bundled dependencies, and a model with no idea what today's date was. Fetching more results, letting the model propose packages while the tools verify them, and computing package age in code each fixed one problem. The last fix made main picks perfect and broke the alternatives, which taught me more than the fixes that worked."
+---
+
+I had used LLMs for years without ever building an agent. Before a hackathon, I wanted to know what an agent actually is once you strip away the marketing, so I built a small one: Mekiki, an npm package advisor. You ask it which library to use, it looks up real data from the npm registry, and it answers with one pick and up to two alternatives. Mekiki (目利き) is Japanese for a trained eye that can judge quality at a glance, which turned out to be the hard part.
+
+I built it over a few days with Claude as my pair. Claude drafted the docs, and I wrote the code and ran every experiment, read every trace, and pushed back on fixes I didn't buy. Most of what's in this post came out of that back and forth, so it's fair to say we learned it together.
+
+The surprise was where the bugs lived. Every time Mekiki gave a wrong answer, my first guess was that the model was dumb. Every time, the trace said otherwise.
+
+```ascii
+ "best React form library?"
+            │
+            ▼
+   ┌─────────────────┐   tool_calls    ┌──────────────────┐
+   │   model call    │ ──────────────▶ │  run the tools   │
+   │  (gpt-4o-mini)  │ ◀────────────── │  npm registry    │
+   └────────┬────────┘   tool results  └──────────────────┘
+            │ no tool_calls
+            ▼
+     final answer: one pick, up to two alternatives
+```
+
+## An Agent Is a Loop With Tools
+
+An agent is a loop. You send the model the conversation plus a description of each tool it may use. It either answers in text, or asks you to call a tool with some arguments. Your code runs the tool, appends the result, and calls the model again, until it answers without asking for anything. Here's the whole loop from Mekiki:
+
+```ts
+for (let step = 1; step <= MAX_STEPS; step++) {
+  const res = await client.chat.completions.create({
+    model,
+    messages,
+    tools,
+  });
+
+  const msg = res.choices[0]?.message;
+  if (!msg) throw new Error("Model returned no message");
+  messages.push(msg);
+
+  if (!msg.tool_calls?.length) return msg.content ?? "";
+
+  const calls = msg.tool_calls.filter((call) => call.type === "function");
+  const results = await Promise.all(
+    calls.map(async (call) => {
+      console.log(
+        `[step ${step}] ${call.function.name}(${call.function.arguments})`,
+      );
+      return {
+        id: call.id,
+        content: await runTool(call.function.name, call.function.arguments),
+      };
+    }),
+  );
+  for (const { id, content } of results) {
+    messages.push({ role: "tool", tool_call_id: id, content });
+  }
+}
+return `Stopped after ${MAX_STEPS} steps without a final answer.`;
+```
+
+A few details took me a minute. The model never runs your function. It asks, and your loop decides whether to. Every tool result carries the `tool_call_id` of the request it answers, because the model can ask for several tools in one turn, and if you skip one the next API call fails. In version 7 of the `openai` package a tool call can be a `function` call or a `custom` one, so strict TypeScript won't let you touch `call.function` until the `filter` narrows it. And `MAX_STEPS` counts model turns, where one turn can hold several tool calls, so the agent can't loop forever if the model never settles on an answer. The `Promise.all` wasn't there in the first version. It came from a trace, further down.
+
+Mekiki has two tools. `search_packages` searches npm. `get_package_info` looks up one package by name: version, last publish date, license, weekly downloads, and whether it's deprecated. Every run is traced with neatlogs, so each one shows up as a tree: the workflow at the root, the agent loop under it, and a span for every model call and every tool call.
+
+## The Model Was Starved
+
+The first real question was "best React form library?" Mekiki recommended `survey-react-ui`, a library for rendering JSON surveys with 277,309 weekly downloads. `react-hook-form`, the obvious answer at 70 million weekly downloads, didn't appear anywhere in the answer.
+
+I ran the same query against npm's search API by hand. npm ranks results by how well the text matches and ignores popularity. `survey-react-ui` describes itself as a "React form library," word for word. `react-hook-form` calls itself a forms library for React Hooks, which matches worse. My tool asked for 5 results, and `react-hook-form` sat just past the cut. The model never saw it. Given the five packages it did get, picking the most downloaded one was a reasonable call.
+
+The fix was to fetch 25, sort by downloads, and keep the top 8:
+
+```ts
+const url = `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(query)}&size=25`;
+
+const res = await fetch(url);
+if (!res.ok) throw new Error(`npm search failed with status ${res.status}`);
+
+const data = (await res.json()) as NpmSearchResponse;
+
+return data.objects
+  .map((o) => ({
+    name: o.package.name,
+    description: o.package.description ?? "",
+    weeklyDownloads: o.downloads?.weekly ?? 0,
+  }))
+  .sort((a, b) => b.weeklyDownloads - a.weeklyDownloads)
+  .slice(0, 8);
+```
+
+Fetching 25 puts the popular package in the pool, and sorting puts it first. Keeping 8 matters because every tool result stays in the conversation for every later turn, so a bloated result costs tokens on every step after it. I also added a line to the tool description saying results depend heavily on wording, so the model should try two or three phrasings. On the next run it fired three searches in a single turn, and `react-hook-form` came out on top.
+
+<Callout type="info">
+  **Most agent bugs are context bugs.** Before blaming the model, look at
+  exactly what the tools handed it. A model can only reason about what's in its
+  context window, and a tool that silently drops the right answer makes a smart
+  model look stupid.
+</Callout>
+
+## The Trace Saw What the Terminal Couldn't
+
+Once tracing was in, the first thing I noticed had nothing to do with answers. I was reading the timestamps on the tool spans, and each search started the moment the previous one ended. The model had asked for three tools at once, but my first version ran them one at a time:
+
+```ts
+for (const call of msg.tool_calls) {
+  if (call.type !== "function") continue;
+  const result = await runTool(call.function.name, call.function.arguments);
+  messages.push({ role: "tool", tool_call_id: call.id, content: result });
+}
+```
+
+Each `await` inside the loop waits for one tool to finish before starting the next.
+
+```ascii
+before:  search 1 ████████
+         search 2         ████████
+         search 3                 ████████
+
+after:   search 1 ████████
+         search 2 ████████
+         search 3 ████████
+```
+
+Swapping in the `Promise.all` version from the loop above, with each result paired to its `tool_call_id` so order can't get mixed up, gave this on two runs that made the same calls:
+
+|               | Before | After  |
+| ------------- | ------ | ------ |
+| Time in tools | 6.3 s  | 2.3 s  |
+| Total run     | 14.0 s | 10.7 s |
+
+The answer didn't change, so no check on the output would have caught this. I only saw it because I was reading timestamps.
+
+## Downloads Count Installs, Not Choices
+
+With search fixed, the main pick was right, but the alternatives were `rc-field-form` and `@rc-component/form`. I checked their repositories, and both point at `react-component/field-form`. They're the old and new names of one library, and that library is the form engine inside Ant Design. Its millions of weekly downloads come from people installing antd. Almost nobody picks it on purpose.
+
+I ran the question five times. The main pick was right 5 of 5 times, and the alternatives were wrong 10 of 10 times. The trace pinned the cause. One search had returned `@tanstack/react-form-devtools`, direct evidence that TanStack Form exists, and the model never looked up `@tanstack/react-form`. The prompt told it to check well-known packages that search missed. It ignored that line every single run.
+
+So we flipped the order of work. The model knows from training what developers tend to choose, but its knowledge is stale. The tools know what's current, but they can't tell a choice from a dependency. Each one covers the other's gap.
+
+```ascii
+   model's memory                       npm registry
+ "what developers choose"            "what's true today"
+          │                                   │
+          ▼                                   ▼
+   propose: formik,              verify: exists? deprecated?
+   react-hook-form,     ──────▶  last release? same repo
+   @tanstack/react-form          as another candidate?
+                                              │
+                                              ▼
+                                   pick from what survived
+```
+
+The system prompt became numbered steps:
+
+```ts
+"You help developers pick npm packages. Follow these steps in order.",
+"1. From your own knowledge, name the 3 to 5 packages developers most often choose for this job.",
+"2. In your first turn, call get_package_info on each of them and call search_packages to find anything you missed.",
+"3. If search shows a strong candidate you have not checked, call get_package_info on it.",
+"4. Recommend one package and at most two alternatives. Each must be a library developers install directly for this job.",
+"5. Skip packages that extend, wrap or ship inside another library. Packages with the same repository are one project: list it once.",
+```
+
+The old version had the same idea buried as one clause in a paragraph, and gpt-4o-mini skipped it every time. It follows short numbered steps far more reliably. I also added the repository to `get_package_info`, normalized so renamed duplicates match. Over five more runs, the alternatives scored 10 of 10. One trace shows the whole idea working: in its first turn, the model looked up `formik`, `react-hook-form`, `redux-form` and `@tanstack/react-form` from memory, then dropped `redux-form` after seeing its last release was in March 2023.
+
+## One Question Proves Very Little
+
+Ten out of ten felt like done. But I had tuned everything on a single question, and a fix tuned on one question can quietly fit that question and nothing else. So I wrote three new ones: a date library for TypeScript, an HTTP client for Node, and state management for React. Each got an answer key with an accept list and a trap list (`moment`, `request`, `recoil`), committed to git before the first run so I couldn't bend the key toward the results later.
+
+Running each question once nearly sent me the wrong way. On its first run, the state management question picked `redux`, and I was ready to call the main pick broken. Over three runs, `zustand` won twice, and the real problem turned out to be the alternatives. I had read one run as a pattern.
+
+Across nine runs, the baseline was 5 of 9 main picks right, 14 of 18 alternatives right, and a trap recommended 2 times out of 9.
+
+## The Model Doesn't Know What Day It Is
+
+The HTTP question picked `node-fetch` as the main recommendation in all three runs. One answer called it "actively maintained" directly under "Last Published: July 25, 2023." The model wasn't ignoring the date. It just didn't think 2023 was old.
+
+gpt-4o-mini's training data ends around late 2023, and nothing in my prompt told it today's date, so July 2023 looked like last month. Every miss in the baseline involved a package last published in 2023. The prompt said to "weigh the last publish date," but weighing a date means comparing it to today, and the model had no today to compare against.
+
+I could have put the date in the prompt, but then the model still has to subtract dates, and small models do arithmetic badly. So the code does the math and hands the model a number:
+
+```ts
+const MS_PER_MONTH = 1000 * 60 * 60 * 24 * 30.44;
+
+function monthsSince(isoDate: string | undefined): number | null {
+  if (!isoDate) return null;
+  const then = Date.parse(isoDate);
+  if (Number.isNaN(then)) return null;
+  return Math.floor((Date.now() - then) / MS_PER_MONTH);
+}
+```
+
+`get_package_info` now returns `monthsSinceLastPublish` next to the raw date. `node-fetch` came out at 38 months, `recoil` at 43, and `zustand` at 1. The prompt got a rule: at 12 months or more, never the main pick, any alternative must state its age, and never call it actively maintained.
+
+Before running anything, I wrote down predictions. `node-fetch` stops being the main pick. `recoil` disappears. And the date question shouldn't change at all, because `moment` shipped a release last month, so this fix can't see what's wrong with it.
+
+<Callout type="warning">
+  **Write predictions before you run.** If you write them after you see the
+  results, you'll find you were right every time. A prediction written first is
+  the only kind that can tell you something you didn't already believe.
+</Callout>
+
+## The Fix That Backfired
+
+|        | Main picks | Alternatives | Traps  |
+| ------ | ---------- | ------------ | ------ |
+| Before | 5 of 9     | 14 of 18     | 2 of 9 |
+| After  | 9 of 9     | 8 of 18      | 3 of 9 |
+
+Main picks became perfect. The alternatives fell by almost half, and `moment` got recommended in every run of the date question. The traces showed three separate causes.
+
+The hard line threw out borderline packages. `luxon` was 13 months past its last release, and it was dropped in all three date runs. One run labeled it "not actively maintained" at 13 months, the same verdict it would give a package abandoned for years. To a hard rule, 13 months and 43 months look the same.
+
+Freshness crowded out fit. Once age became the loudest signal in the prompt, `moment` looked like the best kept package in the list. Before the fix, the model's memory kept it out, since its own team calls it a legacy project. After the fix, a number in the tool output outweighed what the model remembered. The HTTP question showed the same pattern: `gaxios`, a client built for Google's APIs and published the day before, took an alternative slot twice.
+
+And the model's memory was stale. Its list for state management was `redux`, `mobx`, `recoil`, `zustand`, which is about right for 2023. The new rule ruled out two of them, and the model never thought of `@reduxjs/toolkit` or `jotai`. It read "at most two alternatives" as "exactly two," so it filled the empty slot from search results and recommended `unstated-next`, last released 88 months ago, over `mobx`.
+
+evals.md holds six predictions in all. Two held, one half held, two were wrong, and one, that the tuning question wouldn't change, I haven't measured yet. I kept the wrong ones in the log, since a log where every prediction comes true is hard to believe.
+
+That's where Mekiki stands today, with an open problem written down. The next attempt is graded age wording instead of a hard line, a rule that fit comes before freshness, and permission to list fewer alternatives, tested on questions neither of us has seen yet. Fixing the date question by staring at its failures would quietly turn my holdout into a tuning set.
+
+## Key Takeaways
+
+**Look at what the model saw before you blame the model.** The search cutoff, the bundled dependencies and the missing date were all problems with the input. The model did reasonable things with bad context every time.
+
+**Trace everything, and read the timeline too.** The slowest bug in Mekiki never changed an answer. Only span timestamps showed three tool calls waiting on each other.
+
+**Let the model propose and the tools verify.** Memory knows what people choose, and live data knows what's true today. Mekiki needed both.
+
+**Do the math in code.** A model judges "recent" and "old" against the date its training ended. Hand it a computed number instead of asking it to work one out.
+
+**A hard number can crowd out judgment.** Adding package age fixed one failure and created three. Once age was the loudest rule in the prompt, the model let it beat fit.
+
+**Measure on questions you didn't tune on, and predict first.** One question proved almost nothing, and the predictions that failed taught me the most.
+
+---
+
+## References
+
+### Mekiki
+
+- [Mekiki GitHub Repository](https://github.com/atharvdange618/Mekiki) - the agent, plus `decisions.md` and `evals.md` with the scores and trace IDs from this post
+
+### Tools and Docs
+
+- [OpenAI - Function calling](https://platform.openai.com/docs/guides/function-calling) - how tool definitions, tool calls and `tool_call_id` fit together
+- [neatlogs TypeScript SDK](https://docs.neatlogs.com/sdk/typescript) - `wrapOpenAI`, `span()` and the trace tree used throughout
+- [npm registry API](https://github.com/npm/registry/blob/main/docs/REGISTRY-API.md) - the search and package endpoints behind both tools
