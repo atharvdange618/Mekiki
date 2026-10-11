@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 import OpenAI from "openai";
 import { init, shutdown, span, wrapOpenAI } from "neatlogs";
+import { appendFacts, type PackageFacts } from "./report.js";
 import {
   ChatCompletionMessageParam,
   ChatCompletionTool,
@@ -14,7 +16,7 @@ function requireEnv(name: string): string {
 
 const model = requireEnv("OPENAI_MODEL");
 const apiKey = requireEnv("OPENAI_API_KEY");
-const commit = execFileSync("git", ["describe", "--always", "--dirty"]).toString().trim();
+export const commit = execFileSync("git", ["describe", "--always", "--dirty"]).toString().trim();
 
 await init({
   apiKey: requireEnv("NEATLOGS_API_KEY"),
@@ -197,7 +199,11 @@ function normalizeRepository(
     .toLowerCase();
 }
 
-async function runTool(name: string, rawArgs: string): Promise<string> {
+async function runTool(
+  name: string,
+  rawArgs: string,
+  checked: Map<string, PackageFacts>,
+): Promise<string> {
   const args: unknown = JSON.parse(rawArgs);
 
   if (name === "search_packages" && isQueryArgs(args)) {
@@ -205,7 +211,9 @@ async function runTool(name: string, rawArgs: string): Promise<string> {
   }
 
   if (name === "get_package_info" && isNameArgs(args)) {
-    return JSON.stringify(await getPackageInfo(args.name));
+    const info = await getPackageInfo(args.name);
+    if (info.found) checked.set(info.name, info);
+    return JSON.stringify(info);
   }
 
   return JSON.stringify({ error: `Unknown tool or bad args: ${name}` });
@@ -243,13 +251,15 @@ const runAgent = span(
           "4. Recommend one package and at most two alternatives. Each must be a library developers install directly for this job.",
           "   Skip packages that extend, wrap or ship inside another library. Packages with the same repository are one project: list it once.",
           "monthsSinceLastPublish is how long ago the last release was. At 12 or more, the package may be unmaintained:",
-          "   never make it the main pick, and if you list it as an alternative, say how many months it has been.",
+          "   never make it the main pick, and if you list it as an alternative, say it may be unmaintained.",
           "   High downloads do not mean a package is maintained. Never call a package actively maintained at 12 or more.",
-          "Give downloads and last publish date for each pick.",
+          "Write each package by its exact npm name. Never write download counts, dates or month counts:",
+          "   the program appends a table of registry data for every package you name.",
         ].join("\n"),
       },
       { role: "user", content: question },
     ];
+    const checked = new Map<string, PackageFacts>();
 
     for (let step = 1; step <= MAX_STEPS; step++) {
       const res = await client.chat.completions.create({
@@ -262,7 +272,8 @@ const runAgent = span(
       if (!msg) throw new Error("Model returned no message");
       messages.push(msg);
 
-      if (!msg.tool_calls?.length) return msg.content ?? "";
+      if (!msg.tool_calls?.length)
+        return appendFacts(msg.content ?? "", [...checked.values()]);
 
       const calls = msg.tool_calls.filter((call) => call.type === "function");
       const results = await Promise.all(
@@ -272,7 +283,11 @@ const runAgent = span(
           );
           return {
             id: call.id,
-            content: await runTool(call.function.name, call.function.arguments),
+            content: await runTool(
+              call.function.name,
+              call.function.arguments,
+              checked,
+            ),
           };
         }),
       );
@@ -284,13 +299,16 @@ const runAgent = span(
   },
 );
 
-const advise = span({ kind: "WORKFLOW", name: "advise" }, runAgent);
+export const advise = span({ kind: "WORKFLOW", name: "advise" }, runAgent);
 
-const question =
-  process.argv.slice(2).join(" ") ||
-  "Which date library should I use for a Next.js app?";
-try {
-  console.log(await advise(question));
-} finally {
-  await shutdown();
+// Run as a CLI only when executed directly, so evals.ts can import advise.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  const question =
+    process.argv.slice(2).join(" ") ||
+    "Which date library should I use for a Next.js app?";
+  try {
+    console.log(await advise(question));
+  } finally {
+    await shutdown();
+  }
 }

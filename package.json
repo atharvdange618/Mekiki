@@ -15,7 +15,9 @@
   "type": "module",
   "scripts": {
     "start": "tsx --env-file=.env agent.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "evals": "tsx --env-file=.env evals.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "neatlogs": "^1.1.26",
@@ -24,6 +26,7 @@
   "devDependencies": {
     "@types/node": "^26.6.4",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }
