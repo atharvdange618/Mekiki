@@ -1,0 +1,17 @@
+can you review @my-first-ai-agent-was-wrong-for-every-reason-except-the-model.mdx blog against the actual codebase?
+
+---
+
+Apply fixes 1, 2 and 3 to my-first-ai-agent-was-wrong-for-every-reason-except-the-model.mdx: rewrite the luxon line, fix the prediction count, and drop repository from line 78
+
+---
+
+Soften the References line on line 258 to say "the scores and trace IDs from this post"
+
+---
+
+/humanizer my-first-ai-agent-was-wrong-for-every-reason-except-the-model.mdx
+
+---
+
+Drop one of the two "nearly"s in the One Question Proves Very Little section
