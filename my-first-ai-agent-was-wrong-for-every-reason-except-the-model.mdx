@@ -225,6 +225,8 @@ Before running anything, I wrote down predictions. `node-fetch` stops being the 
 
 Main picks became perfect. The alternatives fell by almost half, and `moment` got recommended in every run of the date question. The traces showed three separate causes.
 
+_Update, October 12: later runs showed that 3 runs per question can't tell a shift this size from noise. The causes below are real, but the size of the drop isn't proven. See [the update](#update-october-12-2026) at the end._
+
 The hard line threw out borderline packages. `luxon` was 13 months past its last release, and it was dropped in all three date runs. One run labeled it "not actively maintained" at 13 months, the same verdict it would give a package abandoned for years. To a hard rule, 13 months and 43 months look the same.
 
 Freshness crowded out fit. Once age became the loudest signal in the prompt, `moment` looked like the best kept package in the list. Before the fix, the model's memory kept it out, since its own team calls it a legacy project. After the fix, a number in the tool output outweighed what the model remembered. The HTTP question showed the same pattern: `gaxios`, a client built for Google's APIs and published the day before, took an alternative slot twice.
@@ -248,6 +250,84 @@ That's where Mekiki stands today, with an open problem written down. The next at
 **A hard number can crowd out judgment.** Adding package age fixed one failure and created three. Once age was the loudest rule in the prompt, the model let it beat fit.
 
 **Measure on questions you didn't tune on, and predict first.** One question proved almost nothing, and the predictions that failed taught me the most.
+
+## Update, October 12, 2026
+
+I kept working on Mekiki after this post went up. Two findings change how to read it: the model was copying the wrong numbers, and my 3-run batches were mostly noise.
+
+### The Model Copied the Wrong Numbers
+
+Computing package age in code fixed the missing date, but the model still had to copy the number into its answer, and it copied badly. One trace gave `fecha` "13 months ago", which was `luxon`'s age. The tool had returned 53. Another called `node-fetch` "3 months ago" right next to its July 2023 date.
+
+So the code does the copying too. The prompt now tells the model to write no download counts, dates or month counts, and the agent keeps every package `get_package_info` found. When the model answers, code appends a table of tool data for each package the answer names:
+
+```ts
+export function appendFacts(answer: string, facts: PackageFacts[]): string {
+  const named = mentionedPackages(
+    answer,
+    facts.map((f) => f.name),
+  );
+  const rows = facts.filter((f) => named.includes(f.name));
+  if (!rows.length) return answer;
+
+  return [
+    answer,
+    "",
+    "Registry data:",
+    "",
+    "| Package | Weekly downloads | Last published | Months since |",
+    "| ------- | ---------------- | -------------- | ------------ |",
+    ...rows.map(
+      (f) =>
+        `| ${f.name} | ${f.weeklyDownloads?.toLocaleString("en-US") ?? "unknown"} | ${f.lastPublished?.slice(0, 10) ?? "unknown"} | ${f.monthsSinceLastPublish ?? "unknown"} |`,
+    ),
+  ].join("\n");
+}
+```
+
+Finding the names took one wrong try. `request` and `got` are also English words, and my first matcher read "HTTP request library" as a mention of the `request` package. Now a name counts only when the model formats it as one: bold, backticks or link text.
+
+Across 40 answers since, the appended table has been right every time. The model still writes its own numbers now and then, against the prompt, and 3 of the 40 got one wrong. The table under each answer shows the true value.
+
+### Three Runs Were Mostly Noise
+
+I predicted the numbers fix would leave the scores alone, since it only moved who writes the numbers. Instead, holdout alternatives rose from 8 of 18 to 12 of 16. That looked too good, so I ran the same prompt again with nothing changed:
+
+|                    | Main   | Alternatives | Traps  |
+| ------------------ | ------ | ------------ | ------ |
+| First batch        | 8 of 8 | 12 of 16     | 3 of 8 |
+| Same prompt, again | 6 of 8 | 7 of 16      | 3 of 8 |
+
+Each batch lost one run to an npm error, so both have 8. With no change at all, alternatives swung by 5. That swing is about as big as the rise I had credited to the fix, and as the drop I blamed on the freshness fix above. With 3 runs per question, I couldn't tell a real change from luck, in either direction.
+
+So each question now runs 10 times. This is the baseline future prompt changes get measured against:
+
+|         | Main     | Alternatives | Traps   |
+| ------- | -------- | ------------ | ------- |
+| Tuning  | 9 of 10  | 13 of 20     | 3 of 10 |
+| Holdout | 24 of 30 | 37 of 60     | 7 of 30 |
+
+Holdout alternatives come to 62%, right between the two 3-run batches (75% and 44%). `moment` came up in 5 of 10 date runs, where the post above has it in all of them. Two runs never mention it, and three call it legacy. Its registry data hasn't changed, so the model's own memory wins some of the time and loses some of the time.
+
+The 10 runs also showed a pattern I hadn't spotted. Most main pick misses, 6 of 40 answers, list packages without naming a single pick. Only one named a wrong pick. That's a format problem more than a judgment problem, and it's the next thing to fix.
+
+<Callout type="warning">
+  **Run the same prompt twice before you trust a difference.** If two batches
+  with no change between them differ as much as your before and after, the
+  change proved nothing.
+</Callout>
+
+### Smaller Changes
+
+Running 10 batches at a time hit npm's rate limit. Most of the traffic was an exact-name search inside `get_package_info`, and search is the endpoint npm throttles. Now each lookup fetches the full package document plus npm's downloads API, and caches the result in a `Map` for the life of the process, so a 10-run batch looks up `react-hook-form` once. The tradeoff is size: that one document is 883 KB compressed, so a single question from the CLI downloads about 1 MB more than before. Retries now cover 429, 502, 503 and 504, and the first 10-run batch finished with no crashes and no retries.
+
+Every trace now carries the commit it ran on, from `git describe --dirty`. That caught a mistake of mine right away. Two batches both carried `9ffc58a-dirty`, because I ran the before and the after without committing either change. Commit the change before you run the after batch.
+
+### Two More Takeaways
+
+**Do the copying in code, too.** Computing a number in code helps only if the model doesn't retype it. Let code put tool data in the answer.
+
+**Measure the noise before the change.** Three runs per question swung by as much as every fix I measured with them. Ten runs gave a baseline I can trust.
 
 ---
 
