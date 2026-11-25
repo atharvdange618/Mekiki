@@ -391,3 +391,76 @@ Four of the 40 answers above put three packages under the alternatives heading: 
 - Alts stays between 54 and 55 of 60. Every third candidate in this batch was an accepted package, but each run already had two accepted packages above it, so dropping the third costs no slot.
 - Trap stays at 0 of 30. The third candidates were `formik`, `@tanstack/react-form`, `react-final-form` and `valtio`, none of them traps.
 
+### Result, session `eval-615d577-1795638778376`
+
+Same prompt and tools as the batch above, plus the step 4 sentence. Scored the same way. A third package counts when the answer offers it as a choice, including inside another package's bullet. A package the answer explicitly moves to a one-line note does not count.
+
+| Question | Run | Main | Alts | Trap | Trace | Notes |
+| -------- | --- | ---- | ---- | ---- | ----- | ----- |
+| T | 1 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`, `formik`) | No | `472983a44436ce2d7af06b03c08d02dc` | Three alternatives in the "Final recommendation" bullets. `@hookform/resolvers` named as the companion, not as a pick |
+| T | 2 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `64f09c627a42fa15c36fd6dc2c88f339` | `react-final-form` moved to a one-line note. `@rc-component/form` called an internal part of Ant Design |
+| T | 3 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `1eeca3f30433c7ba0c17afb2dbe9e5a8` | `react-final-form` one-line note |
+| T | 4 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `a0425b694ca4a1dcf7412b35997af622` | `react-final-form` one-line note |
+| T | 5 | Yes (`react-hook-form`) | 1 (`@tanstack/react-form`; `@rjsf/core` scores nothing) | No | `05797f28407f8c11419713fc80c5bb01` | `@rjsf/core` offered for JSON-Schema forms. `formik` demoted to a note |
+| T | 6 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `a491caf6f087f34ad8b96f1a84279bb7` | `react-final-form` called "a related alternative" inside the `formik` bullet, then demoted in a note. `survey-react-ui` named as a different category |
+| T | 7 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`) | No | `87e448de223b218213aee48ec1b67421` | `formik` left out for age. `@rc-component/form` named as shipping inside Ant Design |
+| T | 8 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `cc88495bcdb2cf6f5a50aab98245a424` | `react-final-form` one-line note |
+| T | 9 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `3a443da7bd604b2d470923883e008177` | `react-final-form` one-line note |
+| T | 10 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `952cf2debe440f9ab4ec86e7a862fba4` | `react-final-form` one-line note |
+| H1 | 1 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `24fbf0b5864153ab31af6b9fb237ddbd` | `moment` called legacy |
+| H1 | 2 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `872bf8a8767b5647138881d901ccecca` | `moment` in maintenance mode. `@js-joda/core` and `temporal-polyfill` in a note |
+| H1 | 3 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `25432864abe8c57271b1d1fa1dbfc550` | `temporal-polyfill` as "a third option worth one line" |
+| H1 | 4 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `3d568fbad6fd523716a3065978adb1d2` | `@js-joda/core` as "one line on a fourth option" |
+| H1 | 5 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `e19b2ef9460d45d58d35d0aea0a5432e` | Polyfills in a one line |
+| H1 | 6 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `7885fc96263c9d3a94efdd4afeed565f` | `moment` not mentioned |
+| H1 | 7 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `6434389c195abef9fe0ff471d4a0cc1f` | `moment` maintenance-only |
+| H1 | 8 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `966121fac03cdd50745aa56afc589790` | `moment` left out for legacy status |
+| H1 | 9 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `a8c1eabec8dabc05989b2cf34f8d0701` | `moment` maintenance mode. Says `moment` types come from `@types/moment`, which does not exist |
+| H1 | 10 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `ee6713be3ea7bb00f58a75b58a42a8a8` | `@internationalized/date` one-line note. `moment` left off |
+| H2 | 1 | Yes (`undici`) | 2 (`axios`, `got`) | No | `9dd4f6c64f97e5f40e56d0c520d486c4` | "request/response transforms" is prose, not the deprecated package |
+| H2 | 2 | Yes (`undici`) | 2 (`axios`, `got`) | No | `f2093663c124108207803caf9535ed5e` |  |
+| H2 | 3 | Yes (`undici`) | 2 (`axios`, `got`) | No | `d0dd76753126bf575b8c0205509a5843` | Says "three alternatives is already more than you need" while leaving out `superagent` |
+| H2 | 4 | Yes (`undici`) | 2 (`axios`, `got`) | No | `15036d94a44cf2f5942fc7f9fd07aba4` |  |
+| H2 | 5 | Yes (`axios`) | 2 (`undici`, `got`) | No | `7f78bf88584858a8ca98243ccb91d4d2` | Only run where `axios` is the pick |
+| H2 | 6 | Yes (`undici`) | 2 (`axios`, `got`) | No | `fd06bc92a50494f883208ba52e94019e` |  |
+| H2 | 7 | Yes (`undici`) | 2 (`axios`, `got`) | No | `869962005c5587e16dd137503a4c15ed` | `superagent` checked, then left out "rather than listing a fourth candidate" |
+| H2 | 8 | Yes (`undici`) | 2 (`axios`, `got`) | No | `b7fcd12fb9d789cf5b5363acdcaf0086` |  |
+| H2 | 9 | Yes (`undici`) | 2 (`axios`, `got`) | No | `bc214b56979e4e6922c53f732a51053e` | `superagent` mentioned, not offered |
+| H2 | 10 | Yes (`undici`) | 2 (`axios`, `got`) | No | `ae26a7f216ac4a2693916366ff3a9f0c` | `node-fetch` and `superagent` in a one line |
+| H3 | 1 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `783e9e9456409d122b8eaaace2f6eff6` | `redux` note: may be unmaintained |
+| H3 | 2 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `6a4fb8e225e757dc8b90d6a0dccc9311` | `nanostores` "worth a look". Says it kept the list to "a top pick plus two" |
+| H3 | 3 | Yes (`zustand`) | 1 (`jotai`; `redux` + `react-redux` score nothing) | No | `327295f24bacc81e1789ebfd16822584` | `redux` + `react-redux` listed as one project. `recoil` avoided |
+| H3 | 4 | Yes (`zustand`) | 1 (`jotai`; `@tanstack/react-query` scores nothing) | No | `2bba8059dbd2d72f45ac313bbac06522` | Query is server state, a different job |
+| H3 | 5 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `03665f8e27e51b5f44790640ab9d8512` | `mobx` one-line note |
+| H3 | 6 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `d8346df740e5f71f9a3b909361e11010` | `nanostores` worth knowing |
+| H3 | 7 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `0e3321ba053f0a8e984de6ba93fcf1fd` | `valtio` note |
+| H3 | 8 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `d952725de273ccd09692cd17513c3147` | `recoil` and `redux` steered away |
+| H3 | 9 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `850cb1f90e3ac2e7e0bbaf51b0a846cc` | `mobx`, `valtio`, `recoil`, `nanostores` in notes |
+| H3 | 10 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `81b71d5395163f8960cdcc5e81e78c6f` | `redux` and `mobx` called not alternatives |
+
+|                          | Main         | Alts         | Trap        | Three or more alts |
+| ------------------------ | ------------ | ------------ | ----------- | ------------------ |
+| T, forms                 | 10 of 10     | 19 of 20     | 0 of 10     | 2 of 10            |
+| H1, dates                | 10 of 10     | 20 of 20     | 0 of 10     | 0 of 10            |
+| H2, HTTP                 | 10 of 10     | 20 of 20     | 0 of 10     | 0 of 10            |
+| H3, state                | 10 of 10     | 18 of 20     | 0 of 10     | 0 of 10            |
+| **Holdout**              | **30 of 30** | **58 of 60** | **0 of 30** | **2 of 40**        |
+| **Before it** (71764d0)  | **30 of 30** | **55 of 60** | **0 of 30** | **4 of 40**        |
+
+| Prediction                                     | Held?                                                                     |
+| ---------------------------------------------- | ------------------------------------------------------------------------- |
+| Three or more alternatives drop to 0 of 40     | No. 2 left, T 1 and T 6. The prediction itself said one or two left means the wording isn't doing the work |
+| Main stays at 30 of 30                         | Yes                                                                       |
+| Alts stays between 54 and 55 of 60             | No. 58. It went up, not down                                              |
+| Trap stays at 0 of 30                          | Yes                                                                       |
+
+Both leftovers put their third package somewhere the sentence doesn't reach. T 1 has no alternatives heading at all: it writes "Final recommendation" and then four bullets, one main and three alternatives. T 6 keeps two bullets and puts `react-final-form` inside the `formik` bullet as "a related alternative", then demotes it in a note. A sentence about the alternatives list can't stop either shape, because neither is a list of three.
+
+Alts gained 3 slots. H1 went 18 to 20: runs 1 and 6 now offer `dayjs` and `luxon` where they used to offer one. H3 went 17 to 18: run 1 added `@reduxjs/toolkit` next to `jotai`. The sentence says where a third candidate goes, and the model took that as license to fill both alternative slots rather than staying short.
+
+The six empty holdout slots go to `@rjsf/core`, `redux` + `react-redux`, and `@tanstack/react-query`. `@rjsf/core` is a real form library for JSON-Schema forms, so that one is a key gap rather than a bad pick. The other two are packages the key marks Neither on purpose.
+
+No trap fire. `moment` appears in 9 of 10 H1 runs and gets a warning each time; the tenth leaves it out. `recoil` appears in 3 H3 runs, all under "avoid". `@rc-component/form` appears in T 2 and T 7, both times described as shipping inside Ant Design. T 1 recommends `@hookform/resolvers` as the schema-validation companion to `react-hook-form`. I scored that No because the answer offers it as a companion, not as a form-library pick, which is how the earlier batches treated it. Atharv settled that on 2026-11-26: a package named as a companion or adjunct to the main pick is not a trap, even when it is on the trap list. Only an offer as a main pick or alternative counts. That also covers `@rc-component/form` described as shipping inside Ant Design.
+
+One wrong claim outside the counted numbers: H1 run 9 says `moment`'s TypeScript types come from `@types/moment`. That package does not exist. The tables under each answer match the tool data.
+
