@@ -2,7 +2,7 @@
 
 Mekiki (目利き) means a trained eye for quality. It's a small AI agent that recommends npm packages. Ask it which library to use, and it looks up real registry data before answering with one pick and up to two alternatives.
 
-It's a practice project, built to learn how agents work before [neatHack](https://neatlogs.com/hackathon). The whole agent fits in one file of about 250 lines: a tool calling loop, two tools, and tracing with [neatlogs](https://neatlogs.com).
+It's a practice project, built to learn how agents work before [neatHack](https://neatlogs.com/hackathon). The whole agent fits in one file of about 340 lines: a tool calling loop, two tools, and tracing with [neatlogs](https://neatlogs.com).
 
 ```
 $ npm start -- "best React form library?"
@@ -25,7 +25,7 @@ $ npm start -- "best React form library?"
 ## What you need
 
 - **Node 22 or later.** The `openai` package needs it. Check with `node -v`.
-- **An OpenAI API key** from [platform.openai.com](https://platform.openai.com/api-keys). A run costs about $0.0006 with `gpt-4o-mini`, so a hundred runs cost less than ten cents.
+- **An OpenAI-compatible API key.** The repo was built on `gpt-4o-mini`, where a run cost about $0.0006, so a hundred runs came to less than ten cents. Set `OPENAI_BASE_URL` if your key belongs to a router or another provider that speaks the same API.
 - **A neatlogs account**, free at [app.neatlogs.com](https://app.neatlogs.com). This is where you'll see what the agent did on each run.
 
 ## Setup
@@ -46,11 +46,12 @@ $ npm start -- "best React form library?"
 
 3. Fill in `.env`:
 
-   | Variable           | Where to get it                                                                                                |
-   | ------------------ | -------------------------------------------------------------------------------------------------------------- |
-   | `OPENAI_API_KEY`   | OpenAI dashboard, API keys                                                                                     |
-   | `OPENAI_MODEL`     | Any chat model on your account. We used `gpt-4o-mini`, which is cheap and fails often enough to be interesting |
-   | `NEATLOGS_API_KEY` | neatlogs dashboard, **Settings → API Keys**                                                                    |
+   | Variable           | Where to get it                                                                                                            |
+   | ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+   | `OPENAI_API_KEY`   | Your provider's dashboard. The key only needs access to the model you set below                                            |
+   | `OPENAI_MODEL`     | Any chat model the key can reach. We built this on `gpt-4o-mini`; the shipped `.env.example` still points at it             |
+   | `OPENAI_BASE_URL`  | Optional. Set it only for a router or another OpenAI-compatible provider. Leave it unset for `api.openai.com`               |
+   | `NEATLOGS_API_KEY` | neatlogs dashboard, **Settings → API Keys**                                                                                |
 
    `.env` is in `.gitignore`. Never commit it, and never paste keys into chat.
 
@@ -119,15 +120,12 @@ Checkpoints live in git refs under `refs/entire/checkpoints/`, apart from your b
 
 ### What's in the repo
 
-| File                          | What it does                                                                                                   |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `.entire/settings.json`       | Turns Entire on for this repo and stores checkpoints as git refs                                                |
-| `.entire/.gitignore`          | Keeps local logs, temp files and per machine settings out of git                                                |
-| `.claude/settings.json`       | Claude Code hooks. They tell Entire when a session starts and ends, when you send a prompt, and when the agent stops |
-| `.opencode/plugins/entire.ts` | The same hooks for OpenCode. `entire enable --agent opencode` generates it, so don't edit it by hand            |
-| `.agents/hooks.json`          | The same hooks for Antigravity                                                                                  |
+| File                     | What it does                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| `.entire/settings.json`  | Turns Entire on for this repo and stores checkpoints as git refs                 |
+| `.entire/.gitignore`     | Keeps local logs, temp files and per machine settings out of git                |
 
-Each hook checks for the `entire` command first and exits quietly if it can't find it. If you don't install Entire, your agents work as before and nothing gets recorded. Claude Code will print a one line note at session start with a link to the install guide.
+`entire enable` writes the agent hooks for whichever agent you use, but this repo doesn't commit them. A hook checks for the `entire` command first and exits quietly if it can't find it, so your agents work as before on a machine without Entire.
 
 ### Setup
 
@@ -138,7 +136,7 @@ Each hook checks for the `entire` command first and exits quietly if it can't fi
    entire enable
    ```
 
-   The agent hooks are already committed, but the git hooks that link sessions to commits live in `.git/hooks`, which git never shares. This step installs them on your machine.
+   This installs the git hooks that link sessions to commits. They live in `.git/hooks`, which git never shares, so this is the step to run on each machine. Add `--agent <name>` to write that agent's hooks too.
 
 3. Check that it worked:
 
@@ -146,7 +144,7 @@ Each hook checks for the `entire` command first and exits quietly if it can't fi
    entire status
    ```
 
-   You should see `Enabled`, the three agents (Antigravity, Claude Code, OpenCode), and `Checkpoints sync to: origin`.
+   You should see `Enabled` and `Checkpoints sync to: origin`.
 
 ### Using it
 

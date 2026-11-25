@@ -2,6 +2,16 @@
 
 Newest first. Each entry says what we chose, why, and what we turned down.
 
+## 2026-11-26: Swap the model to deepseek/deepseek-v4.1-flash through a router
+
+`OPENAI_MODEL` is now `deepseek/deepseek-v4.1-flash` and `OPENAI_BASE_URL` points at `https://api.aicredits.in/v1`. Deepseek 4.1 answers these questions better than `gpt-4o-mini` did. No code changed. `openai` 7.30.0 reads `OPENAI_BASE_URL` on its own (`node_modules/openai/client.js:183`), so the client we build with just an `apiKey` reaches the router the same way it reached OpenAI.
+
+Checked before counting the swap as done: one CLI run made 3 searches and 7 package lookups in two model turns and answered with `date-fns` plus the registry table; the `strict: true` tool schemas were accepted; typecheck and the 28 tests pass.
+
+What this invalidates: the 40-run baseline in `evals.md` was measured on `gpt-4o-mini`. Its Main, Alts and Trap scores describe that model, so they are not the starting point for a prompt change on this one. The next 10-run batch becomes the new baseline.
+
+Rejected: passing `baseURL` in the constructor. The env var covers the CLI and the eval runner alike, and code that names the router would make a run behave differently depending on which file started it. Same reason `.env.example` keeps `OPENAI_BASE_URL` commented out: a template that ships someone's router would send a stranger's OpenAI key to it.
+
 ## 2026-10-11: Full package document plus downloads API, cached per process
 
 Reverses the 2026-10-07 entry below. `get_package_info` used to send an exact-name search on every lookup, which put almost all of a batch's traffic on the search endpoint, the one npm throttles. The last 3-run batch logged 11 retries, all on search. Search also missed deprecated packages and anything not in its top 5 for its own name, which showed up as `unknown` rows.

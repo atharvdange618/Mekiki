@@ -11,7 +11,7 @@ Mekiki is a command line agent that recommends npm packages. You ask a question,
 | `npm.ts`          | `fetch` for the npm registry that retries 429 and 502-504, up to 4 tries |
 | `evals.ts`        | Runs the eval questions 10 times each as one neatlogs session (`pnpm evals`) |
 | `README.md`       | What Mekiki is, setup, and things to try                                 |
-| `.env`            | `OPENAI_API_KEY`, `OPENAI_MODEL` and `NEATLOGS_API_KEY`, never committed |
+| `.env`            | `OPENAI_API_KEY`, `OPENAI_MODEL`, optional `OPENAI_BASE_URL` and `NEATLOGS_API_KEY`, never committed |
 | `architecture.md` | How the agent works                                                      |
 | `decisions.md`    | Why it works that way, and what we rejected                              |
 | `evals.md`        | Test questions, their answer keys, and scored results                    |
