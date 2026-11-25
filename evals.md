@@ -464,3 +464,16 @@ No trap fire. `moment` appears in 9 of 10 H1 runs and gets a warning each time; 
 
 One wrong claim outside the counted numbers: H1 run 9 says `moment`'s TypeScript types come from `@types/moment`. That package does not exist. The tables under each answer match the tool data.
 
+## Layout fix
+
+Both leftovers came from layout, not count. T 1 wrote "Final recommendation" and four bullets, one main and three alternatives, with no alternatives heading. T 6 kept two bullets and put `react-final-form` inside the `formik` bullet as "a related alternative". Step 4 now states the count for any layout and sends extra packages out of the list:
+
+> Recommend one package and at most two alternatives, whatever the layout: a list holds one main pick and never more than three packages in it. Any other package goes in a separate one-line note, out of the list, never inside a pick's bullet.
+
+### Predictions, written before running it
+
+- Three or more packages offered as picks drops from 2 of 40 to 0 of 40. Each leftover shape gets a clause: the list total covers T 1, the bullet rule covers T 6.
+- Main stays at 30 of 30. The line changes layout, not choice.
+- Alts stays at 58 of 60, no lower than 57. Every third package in this batch was accepted and sat above two accepted ones, so removing it costs no slot. A drop below 57 means the line is shortening answers.
+- Trap stays at 0 of 30.
+
