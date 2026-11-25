@@ -477,3 +477,72 @@ Both leftovers came from layout, not count. T 1 wrote "Final recommendation" and
 - Alts stays at 58 of 60, no lower than 57. Every third package in this batch was accepted and sat above two accepted ones, so removing it costs no slot. A drop below 57 means the line is shortening answers.
 - Trap stays at 0 of 30.
 
+### Result, session `eval-885aec5-1795639430161`
+
+| Question | Run | Main | Alts | Trap | Trace | Notes |
+| -------- | --- | ---- | ---- | ---- | ----- | ----- |
+| T | 1 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `ae8b8703cd4ac9d99be5573081f2c559` | "Picks" list holds one main and two alternatives. Resolvers named as the companion |
+| T | 2 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`, `formik`) | No | `7a1ffe7a01c4a1a39eab15dada118a1b` | "Recommendation" list holds four packages, three alternatives. `@rc-component/form` called an internal Ant Design package |
+| T | 3 | Yes (`react-hook-form`) | 1 (`@tanstack/react-form`; `@rjsf/core` scores nothing) | No | `1ac50b8c5c81127d159acda8bf8eadfc` | `formik` and `rc-field-form` called "not a pick" |
+| T | 4 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `669e3a04bc221a39a9010458fed8491c` | `react-final-form` in a note line |
+| T | 5 | Yes (`react-hook-form`) | 2 (`formik`, `react-final-form`) | No | `e8e2afb113b92dea6a33b67f3d7657d1` | 3-package list. `survey-react-ui` in a note as a JSON-survey option |
+| T | 6 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`) | No | `0c00ee8434d5df92946620d783d3f7c8` | `formik` note |
+| T | 7 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `64ddbb254d33c357ae40f56bb03f4021` | `final-form`/`react-final-form` and resolvers in a note |
+| T | 8 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`) | No | `eec082874616ca8f3102aba580347649` | 3-package list. `formik` note |
+| T | 9 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`) | No | `f85a4e142454f3fa4672e83cd33f6965` | 3-package list. `formik` note |
+| T | 10 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `311dda43dba963eeeba99b7e08504a4d` | "Recommendation" list holds four packages, three alternatives. Wrote `formik`'s "12 months ago" |
+| H1 | 1 | Yes (`date-fns`) | 1 (`dayjs`; `@js-joda/core` scores nothing) | No | `ea4f64d76d28b87f2a7c4e4c2ed4fcd3` | 3-package list. `luxon` moved to a note |
+| H1 | 2 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `2bd3cfa3ca2ce825041223726dbcd189` | 3-package list. `moment` note |
+| H1 | 3 | Yes (`date-fns`) | 2 (`dayjs`, `@js-temporal/polyfill`) | No | `b4bffdfaac5c5ac59bfa7be7922c8faa` | `luxon` offered inside the polyfill bullet ("also sits here"), so three alternatives |
+| H1 | 4 | Yes (`date-fns`) | 1 (`dayjs`; `@js-joda/core` scores nothing) | No | `319c1ac82bd1fb956e8c75e9f3ee695d` | "Top 4 picks" list, then a main pick plus two. `luxon` in a note |
+| H1 | 5 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `a085b73bd2777dd97d656b1651b86eb0` | 3-package list. `moment` one-line note |
+| H1 | 6 | Yes (`date-fns`) | 1 (`dayjs`; `@internationalized/date` scores nothing) | No | `bc7a1a83329a2153cfe9eac4f9c39b46` | `luxon` one note |
+| H1 | 7 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `5bed67c19f218a4d0520167cf4a5cede` | 3-package list. `moment` and `temporal-polyfill` notes |
+| H1 | 8 | Yes (`date-fns`) | 1 (`dayjs`; `@js-joda/core` scores nothing) | No | `850383d87a81fce422236796496821bf` | `luxon` flagged in prose. `fecha` and `moment` notes |
+| H1 | 9 | Yes (`date-fns`) | 1 (`dayjs`; `@internationalized/date` scores nothing) | No | `516e4dc81945f8f9b3de93030894da77` | `temporal-polyfill` note. `luxon` avoided in prose |
+| H1 | 10 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `92b37b3685825726083153cbec11570d` | 3-package list. `moment` note |
+| H2 | 1 | Yes (`undici`) | 2 (`axios`, `got`) | No | `89a0570e4321020ef853a085e6d0c9fa` | 3-package list. `node-fetch` and `superagent` outside it |
+| H2 | 2 | Yes (`undici`) | 2 (`axios`, `got`) | No | `ab237bee748e939e6da3302727e1c929` | Looked up `request`, never named it |
+| H2 | 3 | Yes (`undici`) | 2 (`axios`, `got`) | No | `f5de8e8cc229d494787be79822aab319` | `request` called deprecated in a note |
+| H2 | 4 | Yes (`undici`) | 2 (`got`, `axios`) | No | `b76b9a59e44dddf8ceaab93d7f491915` |  |
+| H2 | 5 | Yes (`undici`) | 2 (`axios`, `got`) | No | `6f6c2fcca6caf0c1b77de2ff2fedd9c1` | 3-package list. Wrote `node-fetch`'s "40 months ago" |
+| H2 | 6 | Yes (`undici`) | 2 (`axios`, `got`) | No | `57d68392f94962ce6361027a591bb500` | `superagent` mentioned, not offered |
+| H2 | 7 | Yes (`undici`) | 2 (`axios`, `got`) | No | `98467cdb752c66a4cb55b21786eeb261` | "Recommended" list holds three. `superagent` and `node-fetch` "also considered" |
+| H2 | 8 | Yes (`undici`) | 2 (`axios`, `got`) | No | `ff1e9419d0ee2bf23a90bed2fc6060c6` | `superagent` worth a look in a line |
+| H2 | 9 | Yes (`undici`) | 2 (`axios`, `got`) | No | `b75f6fd361fd66b1eafea87ff4def0b8` | 3-package list |
+| H2 | 10 | Yes (`undici`) | 2 (`axios`, `got`) | No | `63372c8edfdaa6cac7a41469fe0a4b95` |  |
+| H3 | 1 | Yes (`zustand`) | 1 (`jotai`; `nanostores` scores nothing) | No | `928b17193dc45920a5d0db0090f2af0e` | 3-package list. `react-redux` note |
+| H3 | 2 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `32245c5ed4dd70f77e8901470df3ab38` | `mobx` called a viable pick and `recoil` "an option but may be unmaintained", both in notes |
+| H3 | 3 | Yes (`zustand`) | 2 (`jotai`, `mobx`) | No | `9e3c1cfc9a8225204bfcef603efbdca5` | `redux` and `react-redux` notes |
+| H3 | 4 | Yes (`zustand`) | 1 (`jotai`; `redux` scores nothing) | No | `8e6157e9e1132e168ffa4d82e2e77a57` | 3-package list. `recoil` left off |
+| H3 | 5 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `c7e325c435ec2bdb658d45f1911b40bf` | The `jotai` bullet adds `valtio` and `mobx` ("may be followed by"), so five packages offered |
+| H3 | 6 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `07d4bac4a5b98309e47b696d65e14c31` | 3-package list. `recoil` and `nanostores` notes |
+| H3 | 7 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `4e247ff0e4cece5646ff185fe5243916` | `valtio` and `@tanstack/react-store` called reasonable in a line |
+| H3 | 8 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `098eaf1019fbf7c58329650229e72a81` | `mobx` and `nanostores` worth a look |
+| H3 | 9 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `5eb2dca03bc5c3b9b700c3ace33e34af` | 3-package list. `valtio` and `mobx` notes |
+| H3 | 10 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `dd8ab1c87a9f7f28dc8609821341eb1d` | 3-package list. `mobx` and `valtio` note |
+
+|                          | Main         | Alts         | Trap        | Three or more alts |
+| ------------------------ | ------------ | ------------ | ----------- | ------------------ |
+| T, forms                 | 10 of 10     | 19 of 20     | 0 of 10     | 2 of 10            |
+| H1, dates                | 10 of 10     | 15 of 20     | 0 of 10     | 1 of 10            |
+| H2, HTTP                 | 10 of 10     | 20 of 20     | 0 of 10     | 0 of 10            |
+| H3, state                | 10 of 10     | 18 of 20     | 0 of 10     | 1 of 10            |
+| **Holdout**              | **30 of 30** | **53 of 60** | **0 of 30** | **4 of 40**        |
+| **Before it** (6c6b554)  | **30 of 30** | **58 of 60** | **0 of 30** | **2 of 40**        |
+
+| Prediction                                     | Held?                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| Three or more alternatives drop to 0 of 40     | No. 4, the same count as before the previous fix              |
+| Main stays at 30 of 30                         | Yes                                                           |
+| Alts stays at 58, no lower than 57             | No. 53, five below the floor                                  |
+| Trap stays at 0 of 30                          | Yes                                                           |
+
+The fix moved the problem instead of removing it. Two answers ignore the list cap outright: T 2 and T 10 each write "Recommendation" followed by four bullets, one main and three alternatives. Two more use the shape the previous wording also allowed: H1 3 offers `luxon` inside the `@js-temporal/polyfill` bullet, and H3 5 offers `valtio` and `mobx` inside the `jotai` bullet. That is T 6 again, one word changed.
+
+Alts lost 5 slots, all in H1. Runs 1, 4, 6, 8 and 9 now fill the second alternative with `@js-joda/core` or `@internationalized/date`, both marked Neither, where they used to name `luxon`. The cap did not shorten those answers, which still name three packages. It changed the third package from an accepted one to an off-key one. The "Top 4 picks" preamble in H1 4 shows the pressure: it names four, then trims the recommendation to three, and `luxon` is what falls out.
+
+Two runs also break the "never write month counts" rule: T 10 writes `formik`'s "12 months ago" and H2 5 writes `node-fetch`'s "40 months ago". Both match the appended table, so the numbers are right, but the instruction says to leave them out. This is the first batch where either fix leaked a count into prose.
+
+Recommendation: revert `885aec5`. The `615d577` wording scores 58 of 60 with 2 of 40; this one scores 53 with 4. On this evidence the tighter list cap costs four accepted alternatives and buys nothing. Reverted in the next commit: step 4 is back at the `615d577` wording.
+
