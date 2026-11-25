@@ -378,3 +378,16 @@ Every count written in prose matched the appended table: `formik` at 12 months, 
 
 Limits: one batch, one model, no prompt change, so this measures the model and nothing else. It is the new comparison point; the next prompt change is measured against these numbers, not the `gpt-4o-mini` table.
 
+## Two-alternatives fix
+
+Four of the 40 answers above put three packages under the alternatives heading: T 2, T 6, T 9 and H3 7. The prompt already said "at most two alternatives", and the model went past it. Step 4 now names the number it overshot and says what to do with the third candidate:
+
+> Recommend one package and at most two alternatives. Three is too many: leave a third candidate out of the alternatives list, or mention it in one line as a note.
+
+### Predictions, written before running it
+
+- Answers with three or more packages under the alternatives heading drop from 4 of 40 to 0 of 40. One or two left means the wording isn't doing the work.
+- Main stays at 30 of 30 on the holdout. This line only touches how alternatives are listed, so a Main change would mean the model re-planned the answer.
+- Alts stays between 54 and 55 of 60. Every third candidate in this batch was an accepted package, but each run already had two accepted packages above it, so dropping the third costs no slot.
+- Trap stays at 0 of 30. The third candidates were `formik`, `@tanstack/react-form`, `react-final-form` and `valtio`, none of them traps.
+
