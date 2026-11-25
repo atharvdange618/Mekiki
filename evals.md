@@ -305,3 +305,76 @@ Most Main misses come from answers that list packages without naming one pick: 6
 `moment` is no longer recommended every time: 5 of 10 H1 runs, down from all 3 runs in every earlier batch since the freshness fix. Two runs never mention it, and three call it legacy or say its team points elsewhere. The registry data for `moment` looks the same as before, so this is the model's own knowledge showing up some of the time, not something the tools taught it.
 
 The model still writes some wrong numbers in its own text (H1 9, H2 5, H3 9). The registry table under each answer is right in all 40.
+
+## 10-run batch on deepseek 4.1, session `eval-11c7ca7-dirty-1795638126455`
+
+The same prompt, tools and scoring as the `3a62ea0` baseline, after `OPENAI_MODEL` moved to `deepseek/deepseek-v4.1-flash` through the aicredits router (see `decisions.md`, 2026-11-26). Nothing in the agent changed, so the gap between the two tables is the model.
+
+The tag says `11c7ca7-dirty` because the batch started before the documentation commit `b1b2c89` landed. That commit touched no code, so the batch ran the same prompt and tools as `11c7ca7`.
+
+| Question | Run | Main | Alts | Trap | Trace | Notes |
+| -------- | --- | ---- | ---- | ---- | ----- | ----- |
+| T | 1 | Yes (`react-hook-form`) | 1 (`@tanstack/react-form`) | Yes (`@rc-component/form`) | `1556b84cd2c8879ea0f385b8b1be2bb9` | Offered `@rc-component/form` as an alternative for Ant Design work |
+| T | 2 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`, `formik`) | No | `6a456fbcc18b43f782bfa2a70a02cf6d` | Three alternatives, score capped at 2 |
+| T | 3 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`) | No | `5ca6a0fe122dbe675fe4c4591772566c` | `@rc-component/form` named as a wrapper, not a pick |
+| T | 4 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `81f9a1728d1951aa5ea005684b1b04f3` |  |
+| T | 5 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`) | No | `d17602f7757d441c4898c2c8458e2b3d` |  |
+| T | 6 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`, `formik`) | No | `45bb7815cc7b7d2a62907dc83f7d339a` | Three alternatives, score capped at 2 |
+| T | 7 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `55bd7e3e608c26a0b36d2ad04791d9f1` | Wrote `formik`'s 12 months itself, correctly |
+| T | 8 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `6316d6cd6b81c7fd61f968b257b6b6bd` |  |
+| T | 9 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `react-final-form`, `formik`) | No | `3ad54de504bc9882ef2d713a28ac7d84` | Three alternatives, score capped at 2 |
+| T | 10 | Yes (`react-hook-form`) | 2 (`@tanstack/react-form`, `formik`) | No | `6e23ee689fedc9c8dbd796ab8ec0a8ea` |  |
+| H1 | 1 | Yes (`date-fns`) | 1 (`dayjs`; `@internationalized/date` scores nothing) | No | `39f775f8c6d9e774bbc308452cb12870` | `luxon` under "worth knowing", with its 14 months |
+| H1 | 2 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `c34f2158a4549bee7ca7fe5732438f6c` |  |
+| H1 | 3 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `c245fef1669be4e2d66e33932f7e8883` |  |
+| H1 | 4 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `49f143c140a2307c248b2ca1ef1d1d3a` |  |
+| H1 | 5 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `111ed51f7140f461d18a84e2ae56ff9b` |  |
+| H1 | 6 | Yes (`date-fns`) | 1 (`dayjs`; `@internationalized/date` scores nothing) | No | `01427b1c57d64ca91a42d57bb6bee458` | Ran `luxon` under "avoid" |
+| H1 | 7 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `48ea799a69ca58282c53920107aee482` |  |
+| H1 | 8 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `6df9017737480d312804e64547ad4cb2` |  |
+| H1 | 9 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `42a367a1936bb25c6498bc26510722ff` |  |
+| H1 | 10 | Yes (`date-fns`) | 2 (`dayjs`, `luxon`) | No | `8dccdb947f0b17b764701b1506f28c43` |  |
+| H2 | 1 | Yes (`undici`) | 2 (`axios`, `got`) | No | `1e51cc2e8f6ff36807a9da8c847563e8` |  |
+| H2 | 2 | Yes (`undici`) | 2 (`axios`, `got`) | No | `327410f27e9dade55ab6a3e2094db4a0` | Listed `request` as deprecated |
+| H2 | 3 | Yes (`undici`) | 2 (`axios`, `got`) | No | `6b04e6f914c2f7df8e3ea0460f7f350b` |  |
+| H2 | 4 | Yes (`undici`) | 2 (`axios`, `got`) | No | `a3d5a8cc51b960c7334cc1327f2710c9` |  |
+| H2 | 5 | Yes (`undici`) | 2 (`axios`, `got`) | No | `1d93b2da19b6442fbf13b4997e757b52` | `request` and `phin` both called deprecated |
+| H2 | 6 | Yes (`undici`) | 2 (`axios`, `got`) | No | `8c741f8acffe9a190d13516c1438c48d` |  |
+| H2 | 7 | Yes (`undici`) | 2 (`axios`, `got`) | No | `93500ed61016fe1ac66abfb779289c58` | The runner's "mentions `request`" line is prose ("request/response transforms"), not a package |
+| H2 | 8 | Yes (`undici`) | 2 (`axios`, `got`) | No | `dfa427e2a3fc9dd595c4d65d9439b0c2` |  |
+| H2 | 9 | Yes (`undici`) | 2 (`axios`, `got`) | No | `0659a7c7cd6a350a76b5f2e2e1160671` |  |
+| H2 | 10 | Yes (`undici`) | 2 (`got`, `axios`) | No | `80a415e47e44298cae063edebd53931c` |  |
+| H3 | 1 | Yes (`zustand`) | 1 (`jotai`; `redux` scores nothing) | No | `0a96fd5f8dcb1771315faa5c05f60644` | Named `redux` as an alternative with a warning |
+| H3 | 2 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `f8a432904bdbd6c5e6da1b2f85b49655` |  |
+| H3 | 3 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `a6236f758e30d5db72413ad4c6cf2641` |  |
+| H3 | 4 | Yes (`zustand`) | 1 (`jotai`; `react-redux` scores nothing) | No | `f32437ecfcde91840d3bfc09feccb3ec` |  |
+| H3 | 5 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `0afb01d58740e2bf2fa2089923692d4a` |  |
+| H3 | 6 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `849a0b5f993d52c95bdb8f6e7efae376` |  |
+| H3 | 7 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`, `valtio`) | No | `83308f9463257cc45e8752f202b8b454` | Three alternatives, score capped at 2. `recoil` avoided with its 44 months |
+| H3 | 8 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `93e5aee299719714d9bd2597cd51030d` | `recoil` avoided |
+| H3 | 9 | Yes (`zustand`) | 1 (`jotai`; `redux` scores nothing) | No | `4ee6f560cf91ad490d55392491872996` | Named `redux` as an alternative with a warning |
+| H3 | 10 | Yes (`zustand`) | 2 (`@reduxjs/toolkit`, `jotai`) | No | `10fbfbe8fa584207cbf4b445ba2277ee` |  |
+
+|                          | Main         | Alts         | Trap        |
+| ------------------------ | ------------ | ------------ | ----------- |
+| T, forms                 | 10 of 10     | 19 of 20     | 1 of 10     |
+| H1, dates                | 10 of 10     | 18 of 20     | 0 of 10     |
+| H2, HTTP                 | 10 of 10     | 20 of 20     | 0 of 10     |
+| H3, state                | 10 of 10     | 17 of 20     | 0 of 10     |
+| **Holdout**              | **30 of 30** | **55 of 60** | **0 of 30** |
+| **gpt-4o-mini baseline** | **24 of 30** | **37 of 60** | **7 of 30** |
+
+Every run named one main pick and every pick was in the accept list. The 6 format misses from the `3a62ea0` baseline, where an answer listed packages without choosing one, do not appear here.
+
+Alts went from 37 of 60 to 55 of 60. All five empty holdout slots went to a package the key marks Neither: `@internationalized/date` twice in H1, `redux` or `react-redux` three times in H3. The baseline's empty slots went to `constate`, `unstated-next` and `gaxios`, which appear in neither list, so the failure has the same shape with better-known neighbors.
+
+Traps went from 7 of 30 to 0 of 30. `moment` appears in all 10 H1 answers and is warned off every time; `redux` appears in all 10 H3 answers and is never a pick; `recoil` appears twice, both under "avoid". The one forms trap is T run 1, which offered `@rc-component/form` as an alternative for Ant Design work. The key calls it a trap because it ships inside `antd`, and the answer still chose to recommend it, so it scores.
+
+H2 changed answer outright. `undici` is the main pick in 10 of 10, where `gpt-4o-mini` picked `axios` in 9. Both are in the accept list, so this does not move Main, but it does say the newer model prefers the client built into Node.
+
+The model still breaks the "at most two alternatives" rule, listing three in T 2, T 6, T 9 and H3 7. The score caps at 2, so the column can't inflate, but the prompt violation is real and worth a look before it reaches a user.
+
+Every count written in prose matched the appended table: `formik` at 12 months, `luxon` at 14, `node-fetch` at 40, `recoil` at 44, `redux` at 35. The wrong-number failure from earlier batches does not show up in this one.
+
+Limits: one batch, one model, no prompt change, so this measures the model and nothing else. It is the new comparison point; the next prompt change is measured against these numbers, not the `gpt-4o-mini` table.
+
